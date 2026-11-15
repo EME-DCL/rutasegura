@@ -1,0 +1,2695 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RutaSegura — Sistema de transporte escolar</title>
+<meta name="description" content="RutaSegura: plataforma web y móvil de gestión y trazabilidad del transporte escolar. Proyecto académico de Ingeniería de Requisitos (RQY1101), Evaluación N°2, Sección 005D, Grupo N°5.">
+<meta name="theme-color" content="#0b2440" id="meta-tema">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b2440'/%3E%3Cpath d='M14 40V18a4 4 0 0 1 4-4h28a4 4 0 0 1 4 4v22' stroke='%23ffc531' stroke-width='4' fill='none'/%3E%3Cpath d='M12 40h40' stroke='%23ffc531' stroke-width='4'/%3E%3Ccircle cx='21' cy='47' r='4' fill='%23ffc531'/%3E%3Ccircle cx='43' cy='47' r='4' fill='%23ffc531'/%3E%3Crect x='18' y='22' width='8' height='9' rx='2' fill='%23ffc531'/%3E%3Crect x='31' y='22' width='8' height='9' rx='2' fill='%23ffc531'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script>
+/* Tema aplicado antes del primer pintado para evitar parpadeo (FOUC) */
+(function () {
+  document.documentElement.classList.add('js');
+  try {
+    var t = localStorage.getItem('rutasegura-tema');
+    if (t !== 'dark' && t !== 'light') {
+      t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) { /* sin localStorage: se mantiene el tema claro */ }
+})();
+</script>
+<style>
+/* ==========================================================================
+   RutaSegura — Hoja de estilos
+   1. Tokens y temas (claro / oscuro)
+   2. Base, tipografía y accesibilidad
+   3. Utilidades (contenedor, rejillas, chips, badges, botones)
+   4. Navbar fija
+   5. Hero
+   6. Cabeceras de sección
+   7. Tarjetas y componentes por sección
+   8. Pestañas, acordeón y filtros
+   9. Tabla del backlog
+   10. Gráfico SVG de estimación
+   11. Footer y botón "volver arriba"
+   12. Movimiento y prefers-reduced-motion
+   ========================================================================== */
+
+/* ---------- 1. Tokens y temas ---------- */
+:root {
+  --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-head: 'Poppins', var(--f-body);
+  --f-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --amarillo: #ffc531;
+  --azul: #0b2440;
+  --azul-2: #123a63;
+  --radio-s: 10px;
+  --radio: 16px;
+  --radio-l: 22px;
+  --max: 1120px;
+  --nav-h: 66px;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --hero-a: #0a2139;
+  --hero-b: #113257;
+  --hero-c: #17456f;
+}
+
+html[data-theme="light"] {
+  --bg: #f2f6fb;
+  --bg-alt: #e9eef6;
+  --surface: #ffffff;
+  --surface-2: #f7fafd;
+  --border: #dbe3ee;
+  --border-strong: #c3cfe0;
+  --text: #1c2a40;
+  --muted: #51617a;
+  --heading: #112943;
+  --primary: #123a63;
+  --primary-ink: #ffffff;
+  --accent: #ffc531;
+  --accent-ink: #251b00;
+  --accent-soft: rgba(255, 197, 49, .16);
+  --accent-strong: #8a6400;
+  --focus: #8a6400;
+  --nav-bg: rgba(255, 255, 255, .9);
+  --shadow: 0 8px 28px rgba(17, 41, 67, .08);
+  --shadow-lg: 0 24px 60px rgba(17, 41, 67, .14);
+  --ok-ink: #14672f;
+  --ok-bg: rgba(22, 135, 66, .12);
+  --warn-ink: #7a5200;
+  --warn-bg: rgba(255, 197, 49, .24);
+  --danger-ink: #a32218;
+  --danger-bg: rgba(179, 38, 30, .10);
+  --neutral-bg: rgba(81, 97, 122, .12);
+  --chart-grid: #e2e9f2;
+  --tip-bg: #112943;
+  --tip-ink: #f2f6fd;
+}
+
+html[data-theme="dark"] {
+  --bg: #0b1322;
+  --bg-alt: #0f192d;
+  --surface: #131f34;
+  --surface-2: #182741;
+  --border: #263552;
+  --border-strong: #33456a;
+  --text: #e6ecf7;
+  --muted: #9db0cb;
+  --heading: #f3f7ff;
+  --primary: #ffc531;
+  --primary-ink: #231a00;
+  --accent: #ffc531;
+  --accent-ink: #231a00;
+  --accent-soft: rgba(255, 197, 49, .14);
+  --accent-strong: #ffce56;
+  --focus: #ffc531;
+  --nav-bg: rgba(11, 19, 34, .86);
+  --shadow: 0 8px 28px rgba(0, 0, 0, .35);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, .5);
+  --ok-ink: #8fe3b0;
+  --ok-bg: rgba(46, 160, 97, .18);
+  --warn-ink: #ffd76e;
+  --warn-bg: rgba(255, 197, 49, .16);
+  --danger-ink: #ff9c94;
+  --danger-bg: rgba(255, 120, 110, .15);
+  --neutral-bg: rgba(157, 176, 203, .16);
+  --chart-grid: #22304b;
+  --tip-bg: #f3f7ff;
+  --tip-ink: #112943;
+}
+
+/* ---------- 2. Base, tipografía y accesibilidad ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { display: block; max-width: 100%; }
+h1, h2, h3, h4 {
+  font-family: var(--f-head);
+  color: var(--heading);
+  line-height: 1.22;
+  letter-spacing: -.015em;
+  margin: 0 0 .5em;
+}
+h2 { font-size: clamp(1.55rem, 3.6vw, 2.2rem); }
+h3 { font-size: 1.08rem; }
+p { margin: 0 0 1em; }
+a { color: inherit; }
+strong { font-weight: 600; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+
+.skip-link {
+  position: fixed;
+  top: .6rem;
+  left: .6rem;
+  z-index: 2000;
+  transform: translateY(-180%);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  padding: .65rem 1.1rem;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: transform .2s var(--ease);
+}
+.skip-link:focus { transform: none; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- 3. Utilidades ---------- */
+.container {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: clamp(1.15rem, 4vw, 2rem);
+}
+.section { padding-block: clamp(3.4rem, 7vw, 5.4rem); }
+.section-alt { background: var(--bg-alt); }
+
+.grid { display: grid; gap: 1.15rem; }
+.grid-2 { grid-template-columns: 1fr; }
+.grid-3 { grid-template-columns: 1fr; }
+.grid-4 { grid-template-columns: 1fr; }
+@media (min-width: 600px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 980px) {
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  padding: clamp(1.15rem, 2.4vw, 1.5rem);
+  box-shadow: var(--shadow);
+  transition: border-color .25s var(--ease), box-shadow .25s var(--ease), translate .25s var(--ease);
+}
+@media (hover: hover) {
+  .card:hover { translate: 0 -4px; border-color: var(--border-strong); box-shadow: var(--shadow-lg); }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .26rem .68rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.chip svg { width: 14px; height: 14px; }
+.badge-alta { background: var(--danger-bg); color: var(--danger-ink); }
+.badge-media { background: var(--warn-bg); color: var(--warn-ink); }
+.badge-baja { background: var(--neutral-bg); color: var(--muted); }
+.badge-sprint { background: var(--accent-soft); color: var(--accent-strong); }
+.badge-estado { background: var(--ok-bg); color: var(--ok-ink); }
+.badge-neutro { background: var(--neutral-bg); color: var(--muted); }
+
+.id-pill {
+  display: inline-block;
+  font-family: var(--f-mono);
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  padding: .22rem .55rem;
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--primary-ink);
+  white-space: nowrap;
+}
+
+.icon-tile {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 13px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.icon-tile svg { width: 23px; height: 23px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  font-family: var(--f-head);
+  font-size: .95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: .82rem 1.4rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), scale .2s var(--ease);
+}
+.btn svg { width: 18px; height: 18px; }
+.btn:active { scale: .98; }
+.btn-primario { background: var(--primary); color: var(--primary-ink); }
+.btn-primario:hover { filter: brightness(1.08); }
+.btn-contorno { border-color: var(--border-strong); color: var(--heading); background: transparent; }
+.btn-contorno:hover { border-color: var(--accent-strong); background: var(--accent-soft); }
+.btn-amarillo { background: var(--accent); color: var(--accent-ink); }
+.btn-amarillo:hover { background: #ffd35e; }
+.btn-fantasma { border-color: rgba(255, 255, 255, .38); color: #f2f6fd; background: rgba(255, 255, 255, .06); }
+.btn-fantasma:hover { border-color: var(--amarillo); background: rgba(255, 197, 49, .12); }
+
+.ic { width: 1.15em; height: 1.15em; flex: none; }
+
+/* ---------- 4. Navbar fija ---------- */
+.navbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1000;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  transition: background .3s var(--ease), border-color .3s var(--ease), box-shadow .3s var(--ease);
+}
+.navbar.scrolled {
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom-color: var(--border);
+  box-shadow: 0 6px 24px rgba(8, 22, 40, .10);
+}
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  min-height: var(--nav-h);
+  max-width: 1320px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  text-decoration: none;
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: 1.12rem;
+  color: var(--heading);
+  margin-right: auto;
+  letter-spacing: -.02em;
+}
+.brand-logo {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--azul);
+  color: var(--amarillo);
+  box-shadow: 0 4px 14px rgba(10, 33, 57, .35);
+}
+.brand-logo svg { width: 23px; height: 23px; }
+.brand-acento { color: var(--accent-strong); }
+.navbar:not(.scrolled) .brand { color: #ffffff; }
+.navbar:not(.scrolled) .brand-acento { color: var(--amarillo); }
+
+.nav-menu ul {
+  display: flex;
+  align-items: center;
+  gap: .1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav-link {
+  position: relative;
+  display: block;
+  padding: .5rem .55rem;
+  border-radius: 8px;
+  font-size: .84rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s var(--ease), background .2s var(--ease);
+}
+.nav-link:hover { color: var(--heading); }
+.nav-link.active { color: var(--heading); font-weight: 600; }
+.nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: .55rem;
+  right: .55rem;
+  bottom: .16rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--amarillo);
+}
+.navbar:not(.scrolled) .nav-link { color: #cfdcef; }
+.navbar:not(.scrolled) .nav-link:hover,
+.navbar:not(.scrolled) .nav-link.active { color: #ffffff; }
+
+.navbar-actions { display: flex; align-items: center; gap: .35rem; }
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--heading);
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s var(--ease);
+}
+.icon-btn svg { width: 21px; height: 21px; }
+.icon-btn:hover { background: var(--accent-soft); }
+.navbar:not(.scrolled) .icon-btn { color: #e7edf8; }
+.navbar:not(.scrolled) .icon-btn:hover { background: rgba(255, 255, 255, .1); }
+html[data-theme="light"] .tema-sol { display: none; }
+html[data-theme="light"] .tema-luna { display: block; }
+html[data-theme="dark"] .tema-sol { display: block; }
+html[data-theme="dark"] .tema-luna { display: none; }
+
+.nav-burger { display: none; }
+.nav-burger .icono-menu { display: block; }
+.nav-burger .icono-cerrar { display: none; }
+.nav-burger[aria-expanded="true"] .icono-menu { display: none; }
+.nav-burger[aria-expanded="true"] .icono-cerrar { display: block; }
+
+@media (max-width: 1359.98px) {
+  .nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: none;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    max-height: calc(100dvh - var(--nav-h));
+    overflow-y: auto;
+    padding: .4rem clamp(1.15rem, 4vw, 2rem) 1rem;
+  }
+  .nav-menu.open { display: block; }
+  .nav-menu ul { flex-direction: column; align-items: stretch; gap: 0; }
+  .nav-menu li + li { border-top: 1px solid var(--border); }
+  .nav-link { padding: .78rem .35rem; font-size: .95rem; color: var(--muted); }
+  .nav-menu .nav-link.active::after { display: none; }
+  .nav-menu .nav-link.active { color: var(--heading); }
+  .navbar:not(.scrolled) .nav-menu .nav-link { color: var(--muted); }
+  .navbar:not(.scrolled) .nav-menu .nav-link.active { color: var(--heading); }
+  .nav-burger { display: grid; }
+}
+
+/* ---------- 5. Hero ---------- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #eef4fc;
+  background: linear-gradient(152deg, var(--hero-a) 0%, var(--hero-b) 52%, var(--hero-c) 100%);
+  padding: calc(var(--nav-h) + clamp(2.6rem, 7vw, 5rem)) 0 clamp(3.2rem, 7vw, 5rem);
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(620px 320px at 12% 8%, rgba(255, 197, 49, .16), transparent 62%),
+    radial-gradient(760px 420px at 92% 96%, rgba(64, 130, 200, .28), transparent 66%);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
+  background-size: 68px 68px;
+  mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 78%);
+}
+.hero-ruta-deco {
+  position: absolute;
+  inset: auto 0 0 0;
+  width: 100%;
+  height: 320px;
+  z-index: -1;
+  opacity: .55;
+  pointer-events: none;
+}
+.hero-inner {
+  display: grid;
+  gap: clamp(2.2rem, 5vw, 3.2rem);
+  align-items: center;
+}
+@media (min-width: 1000px) {
+  .hero-inner { grid-template-columns: 1.06fr .94fr; }
+}
+.hero-curso {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem .6rem;
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, .07);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 999px;
+  padding: .42rem .95rem;
+  font-size: .78rem;
+  font-weight: 500;
+  color: #dbe7f6;
+  letter-spacing: .01em;
+}
+.hero-curso svg { width: 16px; height: 16px; color: var(--amarillo); }
+.hero-curso strong { color: #ffffff; font-weight: 600; }
+.hero h1 {
+  font-size: clamp(2.9rem, 9vw, 4.9rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -.03em;
+  margin: 1.2rem 0 .55rem;
+  color: #ffffff;
+}
+.hero h1 .acento { color: var(--amarillo); }
+.hero-subtitulo {
+  font-family: var(--f-head);
+  font-size: clamp(1.05rem, 2.4vw, 1.32rem);
+  font-weight: 600;
+  color: #dfe9f7;
+  margin: 0 0 .9rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.hero-subtitulo::before {
+  content: "";
+  width: 34px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--amarillo);
+  flex: none;
+}
+.hero-lead {
+  max-width: 56ch;
+  color: #c9d8ea;
+  font-size: clamp(.98rem, 1.6vw, 1.06rem);
+  margin-bottom: 1.7rem;
+}
+.hero-cta { display: flex; flex-wrap: wrap; gap: .7rem; margin-bottom: 2.1rem; }
+
+.hero-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .7rem;
+  max-width: 560px;
+}
+.kpi {
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .065);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  padding: .85rem .8rem;
+  text-align: left;
+}
+.kpi-icono { color: var(--amarillo); margin-bottom: .35rem; }
+.kpi-icono svg { width: 19px; height: 19px; }
+.kpi-valor {
+  display: block;
+  font-family: var(--f-head);
+  font-size: clamp(1.45rem, 4.2vw, 1.95rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+  letter-spacing: -.02em;
+}
+.kpi-label {
+  display: block;
+  font-size: .72rem;
+  line-height: 1.4;
+  color: #b9c9de;
+  margin-top: .2rem;
+}
+/* --- Tarjeta ilustrativa del hero (mock de la app) --- */
+.hero-visual { position: relative; width: 100%; max-width: 430px; margin-inline: auto; }
+.mock-card {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(9, 24, 42, .58);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radio-l);
+  padding: 1.15rem;
+  box-shadow: 0 30px 70px rgba(2, 10, 24, .55);
+}
+.mock-head { display: flex; align-items: center; gap: .65rem; margin-bottom: 1rem; }
+.mock-head .icon-tile { width: 40px; height: 40px; background: rgba(255, 197, 49, .16); color: var(--amarillo); }
+.mock-titulo { font-family: var(--f-head); font-size: .95rem; font-weight: 600; color: #ffffff; line-height: 1.25; }
+.mock-sub { font-size: .74rem; color: #a9bcd4; }
+.mock-live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .7rem;
+  font-weight: 600;
+  color: #8ff0b4;
+  background: rgba(63, 178, 127, .14);
+  border: 1px solid rgba(63, 178, 127, .3);
+  border-radius: 999px;
+  padding: .2rem .55rem;
+}
+.mock-live::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, .5);
+  animation: pulso 2.2s infinite;
+}
+.mock-ruta { width: 100%; height: auto; margin: .2rem 0 .9rem; }
+.mock-lista { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .45rem; }
+.mock-lista li { display: flex; align-items: center; gap: .5rem; font-size: .78rem; color: #c3d3e6; }
+.mock-lista svg { width: 15px; height: 15px; color: var(--amarillo); flex: none; }
+.mock-lista strong { color: #ffffff; font-weight: 600; }
+.mock-accion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  border-radius: 12px;
+  background: var(--amarillo);
+  color: #251b00;
+  font-family: var(--f-head);
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .62rem;
+}
+.mock-accion svg { width: 16px; height: 16px; }
+.mock-chip {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .5rem .8rem;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #112943;
+  font-size: .74rem;
+  font-weight: 600;
+  box-shadow: 0 14px 34px rgba(2, 10, 24, .35);
+  animation: flotar 5s ease-in-out infinite;
+}
+.mock-chip svg { width: 15px; height: 15px; color: #8a6400; flex: none; }
+.mock-chip-1 { top: -1.1rem; right: -.6rem; }
+.mock-chip-2 { bottom: 1.4rem; left: -1.1rem; animation-delay: 1.4s; }
+@media (max-width: 520px) {
+  .mock-chip-1 { right: .2rem; top: -.8rem; }
+  .mock-chip-2 { left: .2rem; font-size: .7rem; }
+}
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes pulso {
+  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, .45); }
+  70% { box-shadow: 0 0 0 7px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+/* ---------- 6. Cabeceras de sección ---------- */
+.seccion-head { max-width: 760px; margin-bottom: clamp(1.8rem, 4vw, 2.6rem); }
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  margin: 0 0 .55rem;
+}
+.kicker-num {
+  display: grid;
+  place-items: center;
+  width: 27px; height: 27px;
+  border-radius: 8px;
+  background: var(--azul);
+  color: var(--amarillo);
+  font-family: var(--f-mono);
+  font-size: .74rem;
+  letter-spacing: 0;
+}
+.seccion-head h2 { margin-bottom: .5rem; }
+.seccion-head .lead { color: var(--muted); font-size: 1.02rem; margin: 0; max-width: 68ch; }
+.seccion-head .nota { font-size: .88rem; color: var(--muted); margin: .6rem 0 0; }
+
+/* ---------- 7. Componentes por sección ---------- */
+
+/* Introducción: propósito, alcance y métricas */
+.intro-grid { display: grid; gap: 1.15rem; margin-bottom: 1.15rem; }
+@media (min-width: 900px) { .intro-grid { grid-template-columns: 1fr 1fr; } }
+.bloque-card { display: flex; gap: 1rem; align-items: flex-start; }
+.bloque-card h3 { margin-bottom: .35rem; }
+.bloque-card p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+.metrica { position: relative; overflow: hidden; }
+.metrica::after {
+  content: "";
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  pointer-events: none;
+}
+.metrica-top { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .5rem; }
+.metrica-valor {
+  font-family: var(--f-head);
+  font-size: clamp(2.3rem, 6vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--heading);
+  letter-spacing: -.03em;
+}
+.metrica-label { font-weight: 600; color: var(--heading); margin: .55rem 0 .15rem; font-size: .96rem; }
+.metrica-detalle { font-size: .85rem; color: var(--muted); margin: 0; }
+.metrica .icon-tile { position: relative; z-index: 1; }
+
+/* Ámbito y límites */
+.alcance-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; }
+@media (min-width: 700px) { .alcance-lista { grid-template-columns: 1fr 1fr; } }
+.alcance-lista li {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .7rem .9rem;
+  font-size: .92rem;
+}
+.alcance-lista svg { width: 18px; height: 18px; color: var(--ok-ink); flex: none; margin-top: .15rem; }
+.limite { border-top: 3px solid var(--danger-ink); }
+.limite-head { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+.limite-head .icon-tile { width: 38px; height: 38px; background: var(--danger-bg); color: var(--danger-ink); border-radius: 10px; }
+.limite-head h3 { margin: 0; font-size: .98rem; }
+.limite p { margin: .2rem 0 0; font-size: .88rem; color: var(--muted); }
+.limites-grid { margin-top: 1.4rem; }
+
+/* Perspectiva del producto */
+.perspectiva { display: grid; gap: .65rem; margin: 0; }
+.perspectiva-fila {
+  display: grid;
+  gap: .2rem;
+  padding: .95rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+}
+@media (min-width: 760px) {
+  .perspectiva-fila { grid-template-columns: 170px 1fr; gap: 1.2rem; align-items: baseline; }
+}
+.perspectiva dt {
+  font-family: var(--f-head);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  margin: 0;
+}
+.perspectiva dd { margin: 0; font-size: .96rem; }
+.perspectiva dd strong { color: var(--heading); }
+.perspectiva-fila.destacada {
+  background: linear-gradient(120deg, var(--accent-soft), transparent 72%);
+  border-color: var(--accent);
+}
+.perspectiva-fila.destacada dd { color: var(--heading); font-weight: 500; }
+
+/* Funciones del producto */
+.funcion { display: flex; flex-direction: column; gap: .7rem; }
+.funcion-head { display: flex; align-items: center; gap: .75rem; }
+.funcion-head h3 { margin: 0; font-size: 1.02rem; }
+.funcion p { margin: 0; font-size: .91rem; color: var(--muted); }
+.funcion .id-pill { align-self: flex-start; }
+
+/* Usuarios */
+.usuario-head { display: flex; align-items: center; gap: .75rem; margin-bottom: .8rem; }
+.usuario-head h3 { margin: 0; font-size: 1.02rem; }
+.usuario-meta { margin: .1rem 0 0; font-size: .78rem; color: var(--muted); }
+.usuario-card > p { font-size: .9rem; color: var(--muted); }
+.usuario-necesidad {
+  margin: .9rem 0 0 !important;
+  padding-top: .8rem;
+  border-top: 1px dashed var(--border-strong);
+  font-size: .88rem !important;
+  color: var(--text) !important;
+  display: flex;
+  align-items: flex-start;
+  gap: .45rem;
+}
+.usuario-necesidad svg { width: 16px; height: 16px; color: var(--accent-strong); flex: none; margin-top: .2rem; }
+.usuario-necesidad strong { color: var(--heading); }
+
+.elicitacion { margin-top: clamp(2.2rem, 5vw, 3rem); }
+.subhead { display: flex; align-items: center; gap: .7rem; margin-bottom: 1rem; }
+.subhead h3 { margin: 0; font-size: 1.18rem; }
+.subhead::before { content: ""; width: 4px; height: 22px; border-radius: 4px; background: var(--accent); }
+.elicitacion-card h4 { font-size: .98rem; margin-bottom: .35rem; display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.elicitacion-card p { font-size: .89rem; color: var(--muted); margin: 0 0 .7rem; }
+.elicitacion-card .id-pill { font-size: .68rem; padding: .15rem .45rem; }
+
+/* RF */
+.filtros { display: grid; gap: .9rem; margin-bottom: 1.3rem; }
+.filtros-barra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+}
+.campo-busqueda {
+  position: relative;
+  flex: 1 1 240px;
+  max-width: 360px;
+}
+.campo-busqueda svg {
+  position: absolute;
+  left: .85rem;
+  top: 50%;
+  translate: 0 -50%;
+  width: 17px; height: 17px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.campo-busqueda input {
+  width: 100%;
+  font: inherit;
+  font-size: .9rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .62rem .9rem .62rem 2.5rem;
+}
+.campo-busqueda input::placeholder { color: var(--muted); opacity: .85; }
+.campo-busqueda input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.filtros-grupo { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.filtros-grupo > span {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-right: .15rem;
+}
+.filtro-btn {
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .35rem .75rem;
+  cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+}
+.filtro-btn:hover { border-color: var(--border-strong); color: var(--heading); }
+.filtro-btn[aria-pressed="true"] {
+  background: var(--primary);
+  border-color: transparent;
+  color: var(--primary-ink);
+}
+.filtro-estado { font-size: .82rem; color: var(--muted); margin: 0; }
+.rf-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.rf-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .35rem .9rem;
+  align-items: start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .8rem 1rem;
+}
+@media (min-width: 760px) {
+  .rf-item { grid-template-columns: auto 1fr auto; align-items: center; }
+}
+.rf-item p { margin: 0; font-size: .91rem; }
+.rf-item .rf-area { grid-column: 2; justify-self: start; font-size: .68rem; }
+@media (min-width: 760px) {
+  .rf-item .rf-area { grid-column: 3; }
+}
+.rf-area {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--neutral-bg);
+  border-radius: 999px;
+  padding: .12rem .55rem;
+  white-space: nowrap;
+}
+.empty-state {
+  padding: 1.4rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+/* RNF: pestañas */
+.tabs { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: 1.2rem; }
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-family: var(--f-head);
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: .58rem 1rem;
+  cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+}
+.tab-btn svg { width: 16px; height: 16px; }
+.tab-btn:hover { border-color: var(--border-strong); color: var(--heading); }
+.tab-btn[aria-selected="true"] {
+  background: var(--primary);
+  border-color: transparent;
+  color: var(--primary-ink);
+}
+.tab-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radio); padding: 1rem; box-shadow: var(--shadow); }
+.tab-panel[hidden] { display: none; }
+.rnf-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+@media (min-width: 900px) { .rnf-lista { grid-template-columns: 1fr 1fr; } }
+.rnf-item {
+  display: flex;
+  gap: .7rem;
+  align-items: flex-start;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: .7rem .85rem;
+}
+.rnf-item .id-pill { background: var(--accent-soft); color: var(--accent-strong); font-size: .68rem; margin-top: .1rem; }
+.rnf-item p { margin: 0; font-size: .88rem; }
+
+/* Scrum */
+.equipo-grid { margin-bottom: clamp(2rem, 4vw, 2.8rem); }
+.equipo-card { display: flex; gap: .9rem; align-items: flex-start; }
+.equipo-card h3 { margin: 0; font-size: 1rem; }
+.equipo-rol { font-size: .8rem; font-weight: 600; color: var(--accent-strong); margin: .15rem 0 .35rem; }
+.equipo-card p { font-size: .86rem; color: var(--muted); margin: 0; }
+.equipo-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+.equipo-meta .chip { background: var(--neutral-bg); color: var(--muted); font-size: .7rem; }
+
+.timeline { list-style: none; margin: 0; padding: 0; position: relative; display: grid; gap: 1rem; }
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: linear-gradient(var(--accent), var(--border-strong));
+  border-radius: 2px;
+}
+.timeline-item { position: relative; padding-left: 58px; }
+.timeline-marca {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-family: var(--f-head);
+  font-size: .8rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 5px var(--bg);
+}
+.section-alt .timeline-marca { box-shadow: 0 0 0 5px var(--bg-alt); }
+.timeline-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radio);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.timeline-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .8rem; margin-bottom: .35rem; }
+.timeline-head h3 { margin: 0; font-size: 1rem; }
+.timeline-card > p { margin: 0 0 .6rem; font-size: .89rem; color: var(--muted); }
+.rf-chips { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .55rem; }
+.rf-chips .chip { font-family: var(--f-mono); font-size: .68rem; font-weight: 600; background: var(--accent-soft); color: var(--accent-strong); }
+.entregable { margin: 0 !important; font-size: .85rem !important; color: var(--text) !important; }
+.entregable svg { width: 15px; height: 15px; color: var(--ok-ink); vertical-align: -.18em; }
+
+.dod { margin-top: clamp(1.8rem, 4vw, 2.4rem); }
+.dod-lista { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .55rem; }
+@media (min-width: 900px) { .dod-lista { grid-template-columns: 1fr 1fr; } }
+.dod-lista li { display: flex; gap: .55rem; align-items: flex-start; font-size: .89rem; }
+.dod-lista svg { width: 18px; height: 18px; color: var(--ok-ink); flex: none; margin-top: .12rem; }
+
+/* Historias de usuario (acordeón) */
+.hu-filtros { display: flex; flex-wrap: wrap; gap: .8rem 1.4rem; align-items: center; margin-bottom: 1.1rem; }
+.hu-lista { display: grid; gap: .7rem; }
+.hu-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.hu-card[hidden] { display: none; }
+.hu-card.abierta { border-color: var(--accent); }
+.hu-trigger {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .65rem;
+  padding: .9rem 1rem;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.hu-trigger:hover { background: var(--surface-2); }
+.hu-titulo { font-family: var(--f-head); font-weight: 600; font-size: .95rem; color: var(--heading); }
+.hu-rol { font-family: var(--f-body); font-weight: 500; color: var(--muted); font-size: .84rem; }
+.hu-sp { font-family: var(--f-mono); font-size: .74rem; font-weight: 700; color: var(--accent-strong); margin-left: auto; }
+.hu-chevron { width: 18px; height: 18px; color: var(--muted); transition: rotate .3s var(--ease); flex: none; }
+.hu-trigger[aria-expanded="true"] .hu-chevron { rotate: 180deg; }
+.hu-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .35s var(--ease), visibility .35s;
+  visibility: hidden;
+}
+.hu-card.abierta .hu-panel { grid-template-rows: 1fr; visibility: visible; }
+.hu-panel-inner { overflow: hidden; min-height: 0; }
+.hu-contenido { padding: 0 1rem 1.1rem; }
+.hu-historia {
+  margin: 0 0 .9rem;
+  padding: .7rem .9rem;
+  font-size: .89rem;
+  color: var(--text);
+  background: var(--surface-2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+}
+.hu-contenido h4 {
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  margin: 0 0 .5rem;
+}
+.ca-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.ca-lista li { display: flex; gap: .6rem; align-items: flex-start; font-size: .88rem; }
+.ca-lista .ca-id { font-family: var(--f-mono); font-size: .7rem; font-weight: 700; color: var(--accent-strong); flex: none; margin-top: .18rem; }
+
+/* ---------- 9. Tabla del backlog ---------- */
+.tabla-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radio); background: var(--surface); box-shadow: var(--shadow); }
+table.backlog { width: 100%; min-width: 860px; border-collapse: collapse; }
+table.backlog caption { text-align: left; padding: .9rem 1rem 0; font-size: .82rem; color: var(--muted); }
+table.backlog th, table.backlog td { text-align: left; padding: .7rem .8rem; border-bottom: 1px solid var(--border); font-size: .86rem; vertical-align: top; }
+table.backlog thead th {
+  font-family: var(--f-head);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+table.backlog tbody tr:last-child td { border-bottom: 0; }
+table.backlog tbody tr:hover { background: var(--surface-2); }
+table.backlog td.hu-celda { font-family: var(--f-mono); font-weight: 700; font-size: .78rem; color: var(--heading); white-space: nowrap; }
+table.backlog td.sp-celda { font-family: var(--f-mono); font-weight: 700; }
+th.ordenable button {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: .5rem 0;
+  cursor: pointer;
+}
+th.ordenable button:hover { color: var(--heading); }
+.sort-ind { font-size: .62rem; opacity: .6; }
+th[aria-sort="ascending"] .sort-ind::after { content: "▲"; color: var(--accent-strong); opacity: 1; }
+th[aria-sort="descending"] .sort-ind::after { content: "▼"; color: var(--accent-strong); opacity: 1; }
+th[aria-sort="none"] .sort-ind::after { content: "⇅"; }
+.tabla-nota { font-size: .8rem; color: var(--muted); margin: .7rem 0 0; display: flex; align-items: center; gap: .4rem; }
+.tabla-nota svg { width: 15px; height: 15px; }
+
+/* ---------- 10. Estimación: gráfico SVG ---------- */
+.chart-card { position: relative; padding: clamp(1rem, 2.5vw, 1.6rem); }
+.chart-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem; margin-bottom: .6rem; }
+.chart-head h3 { margin: 0; font-size: 1.02rem; }
+.chart-head .chip { background: var(--accent-soft); color: var(--accent-strong); }
+#chart-svg { width: 100%; height: auto; overflow: visible; }
+.chart-grid-line { stroke: var(--chart-grid); stroke-width: 1; }
+.chart-axis-label { fill: var(--muted); font-family: var(--f-body); font-size: 11px; }
+.chart-bar { cursor: pointer; outline: none; }
+.chart-bar rect {
+  fill: var(--accent);
+  transform: scaleY(0);
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  transition: transform .8s var(--ease), fill .2s var(--ease);
+  transition-delay: var(--rd, 0ms), 0ms;
+}
+.chart-card.in-view .chart-bar rect { transform: scaleY(1); }
+.chart-bar:hover rect, .chart-bar:focus-visible rect { fill: var(--accent-strong); }
+.chart-bar:focus-visible rect { stroke: var(--heading); stroke-width: 2; }
+.chart-valor { fill: var(--heading); font-family: var(--f-head); font-size: 13px; font-weight: 600; }
+.chart-hu { fill: var(--muted); font-family: var(--f-mono); font-size: 10.5px; }
+.chart-tip {
+  position: absolute;
+  z-index: 10;
+  max-width: 260px;
+  padding: .6rem .8rem;
+  border-radius: 10px;
+  background: var(--tip-bg);
+  color: var(--tip-ink);
+  font-size: .78rem;
+  line-height: 1.45;
+  box-shadow: 0 12px 30px rgba(2, 10, 24, .35);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 12px));
+}
+.chart-tip strong { display: block; font-family: var(--f-head); font-size: .8rem; margin-bottom: .1rem; }
+.chart-tip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  translate: -50% 0;
+  border: 6px solid transparent;
+  border-top-color: var(--tip-bg);
+}
+.estimacion-notas { list-style: none; margin: 1.2rem 0 0; padding: 0; display: grid; gap: .5rem; }
+@media (min-width: 760px) { .estimacion-notas { grid-template-columns: 1fr 1fr; } }
+.estimacion-notas li { background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: .65rem .85rem; font-size: .85rem; color: var(--muted); }
+.estimacion-notas strong { font-family: var(--f-mono); font-size: .76rem; color: var(--accent-strong); margin-right: .3rem; }
+.planning-poker { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: 1.2rem; font-size: .85rem; color: var(--muted); }
+.planning-poker .chip { font-family: var(--f-mono); background: var(--neutral-bg); color: var(--heading); font-size: .75rem; }
+
+/* Conclusiones */
+.conclusion-card h3 { display: flex; align-items: center; gap: .6rem; font-size: 1rem; margin-bottom: .5rem; }
+.conclusion-card h3 svg { width: 20px; height: 20px; color: var(--accent-strong); flex: none; }
+.conclusion-card p { margin: 0; font-size: .9rem; color: var(--muted); }
+
+/* ---------- 11. Footer y botón volver arriba ---------- */
+.footer {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+  background: linear-gradient(152deg, var(--hero-a), var(--hero-b));
+  color: #cdd9e9;
+  padding: clamp(2.6rem, 6vw, 4rem) 0 0;
+}
+.footer-grid { display: grid; gap: 1.8rem; }
+@media (min-width: 760px) { .footer-grid { grid-template-columns: 1.3fr 1fr 1fr; } }
+@media (min-width: 1000px) { .footer-grid { grid-template-columns: 1.4fr 1fr 1fr 1fr; } }
+.footer .brand { color: #ffffff; margin: 0 0 .8rem; }
+.footer .brand-acento { color: var(--amarillo); }
+.footer-tagline { font-size: .88rem; max-width: 34ch; margin: 0; color: #a9bcd4; }
+.footer h3 {
+  font-size: .76rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--amarillo);
+  margin-bottom: .7rem;
+}
+.footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; font-size: .87rem; }
+.footer li strong { color: #ffffff; font-weight: 600; }
+.footer li span { color: #a9bcd4; }
+.footer a { color: #dbe7f6; text-decoration: none; }
+.footer a:hover { color: var(--amarillo); text-decoration: underline; }
+.version-mini { font-family: var(--f-mono); font-size: .72rem; color: var(--amarillo); background: rgba(255, 197, 49, .12); border-radius: 6px; padding: .08rem .4rem; }
+.footer-bottom {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  border-top: 1px solid rgba(255, 255, 255, .14);
+  padding: 1.1rem 0;
+  font-size: .78rem;
+  color: #8fa4bf;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1.2rem;
+  justify-content: space-between;
+}
+.footer-bottom p { margin: 0; }
+
+.to-top {
+  position: fixed;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  z-index: 900;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--heading);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .25s var(--ease), transform .25s var(--ease), visibility .25s;
+}
+.to-top.visible { opacity: 1; visibility: visible; transform: none; }
+.to-top svg { width: 20px; height: 20px; }
+.to-top:hover { border-color: var(--accent-strong); }
+
+/* ---------- 12. Movimiento y accesibilidad ---------- */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s var(--ease), transform .6s var(--ease);
+  transition-delay: var(--rd, 0ms);
+}
+.js .reveal.in-view { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .js .reveal { opacity: 1 !important; transform: none !important; }
+  .mock-chip { animation: none; }
+  .mock-live::before { animation: none; }
+  .chart-bar rect { transform: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+<!-- ==================== NAVBAR ==================== -->
+<header class="navbar" id="navbar">
+  <div class="container navbar-inner">
+    <a class="brand" href="#inicio" aria-label="RutaSegura — ir al inicio">
+      <span class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+          <path d="M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10"/><path d="M2 16h20"/>
+          <circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/>
+          <rect x="5" y="7" width="14" height="4" rx="1"/>
+        </svg>
+      </span>
+      <span>Ruta<span class="brand-acento">Segura</span></span>
+    </a>
+
+    <nav class="nav-menu" id="nav-menu" aria-label="Navegación principal">
+      <ul>
+        <li><a class="nav-link" href="#inicio">Inicio</a></li>
+        <li><a class="nav-link" href="#introduccion">Introducción</a></li>
+        <li><a class="nav-link" href="#ambito">Ámbito</a></li>
+        <li><a class="nav-link" href="#perspectiva">Perspectiva</a></li>
+        <li><a class="nav-link" href="#funciones">Funciones</a></li>
+        <li><a class="nav-link" href="#usuarios">Usuarios</a></li>
+        <li><a class="nav-link" href="#rf">RF</a></li>
+        <li><a class="nav-link" href="#rnf">RNF</a></li>
+        <li><a class="nav-link" href="#scrum">Scrum</a></li>
+        <li><a class="nav-link" href="#historias">Historias</a></li>
+        <li><a class="nav-link" href="#backlog">Backlog</a></li>
+        <li><a class="nav-link" href="#estimacion">Estimación</a></li>
+        <li><a class="nav-link" href="#conclusiones">Conclusiones</a></li>
+      </ul>
+    </nav>
+
+    <div class="navbar-actions">
+      <button class="icon-btn" id="btn-tema" type="button" aria-pressed="false" aria-label="Cambiar a modo oscuro">
+        <svg class="tema-luna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="tema-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <span class="sr-only" id="tema-texto">Cambiar tema</span>
+      </button>
+      <button class="icon-btn nav-burger" id="btn-menu" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Abrir menú de navegación">
+        <svg class="icono-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <svg class="icono-cerrar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="contenido">
+
+  <!-- ==================== 1. HERO ==================== -->
+  <section class="hero" id="inicio" aria-labelledby="hero-titulo">
+    <svg class="hero-ruta-deco" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M-40 250 C 240 120, 420 320, 700 210 S 1160 90, 1500 220" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="2.5" stroke-dasharray="2 14" stroke-linecap="round"/>
+      <circle cx="240" cy="196" r="4" fill="#ffc531"/><circle cx="700" cy="210" r="4" fill="rgba(255,255,255,.4)"/>
+      <circle cx="1120" cy="128" r="4" fill="rgba(255,255,255,.4)"/>
+    </svg>
+    <div class="container hero-inner">
+      <div class="hero-texto">
+        <p class="hero-curso">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10"/><path d="M2 16h20"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/><rect x="5" y="7" width="14" height="4" rx="1"/></svg>
+          Ingeniería de Requisitos · <strong>RQY1101</strong> · Evaluación N°2 · Sección 005D · Grupo N°5
+        </p>
+        <h1 id="hero-titulo">Ruta<span class="acento">Segura</span></h1>
+        <p class="hero-subtitulo">Sistema de transporte escolar</p>
+        <p class="hero-lead">
+          Plataforma web y móvil que centraliza la operación diaria de <strong>25 furgones</strong> y
+          <strong>450 estudiantes</strong>: trazabilidad GPS, control digital de asistencia y alertas
+          automáticas en lugar de llamadas y grupos de mensajería.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-amarillo" href="#perspectiva">Explorar el producto
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="btn btn-fantasma" href="#scrum">Ver planificación Scrum</a>
+        </div>
+        <div class="hero-kpis" aria-label="Indicadores principales del proyecto">
+          <div class="kpi">
+            <span class="kpi-icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10"/><path d="M2 16h20"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/><rect x="5" y="7" width="14" height="4" rx="1"/></svg></span>
+            <span class="kpi-valor" data-contador="25">25</span>
+            <span class="kpi-label">furgones en operación</span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <span class="kpi-valor" data-contador="450">450</span>
+            <span class="kpi-label">estudiantes al día</span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 12.55a11 11 0 0 1 14 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg></span>
+            <span class="kpi-valor" data-contador="600">600</span>
+            <span class="kpi-label">conexiones simultáneas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ilustración: tarjeta tipo app en ruta (decorativa) -->
+      <div class="hero-visual" aria-hidden="true">
+        <div class="mock-card">
+          <div class="mock-head">
+            <span class="icon-tile">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10"/><path d="M2 16h20"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/><rect x="5" y="7" width="14" height="4" rx="1"/></svg>
+            </span>
+            <div>
+              <div class="mock-titulo">Furgón 12 · Ruta Norte</div>
+              <div class="mock-sub">Turno mañana · 07:12</div>
+            </div>
+            <span class="mock-live">En ruta</span>
+          </div>
+
+          <svg class="mock-ruta" viewBox="0 0 340 96" focusable="false">
+            <path d="M12 66 C 62 14, 118 96, 172 50 S 282 22, 328 58" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 10"/>
+            <circle cx="12" cy="66" r="5" fill="#3fb27f"/>
+            <circle cx="172" cy="50" r="9" fill="rgba(255,197,49,.18)" stroke="#ffc531" stroke-width="2"/>
+            <circle cx="172" cy="50" r="3" fill="#ffc531"/>
+            <circle cx="328" cy="58" r="5" fill="rgba(255,255,255,.35)"/>
+          </svg>
+
+          <ul class="mock-lista">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>A bordo: <strong>18 de 25</strong> estudiantes</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Próxima parada: <strong>Av. Los Castaños</strong> · 2 min</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Retraso: <strong>0 min</strong> · en horario</span></li>
+          </ul>
+          <div class="mock-accion">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>
+            Marcar bajada · máximo 2 toques
+          </div>
+        </div>
+        <span class="mock-chip mock-chip-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Aviso de retraso enviado
+        </span>
+        <span class="mock-chip mock-chip-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          GPS actualizado hace 3 s
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 2. INTRODUCCIÓN Y KPIs ==================== -->
+  <section class="section" id="introduccion" aria-labelledby="intro-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">01</span> Introducción</p>
+        <h2 id="intro-titulo">Del caos de llamadas al control digital en tiempo real</h2>
+        <p class="lead">
+          RutaSegura reemplaza la coordinación informal por una plataforma única que conecta a la
+          administración, los conductores y los apoderados alrededor de la misma información.
+        </p>
+      </div>
+
+      <div class="intro-grid reveal">
+        <article class="card bloque-card">
+          <span class="icon-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </span>
+          <div>
+            <h3>Propósito</h3>
+            <p>
+              Plataforma web y móvil que centraliza la operación del transporte escolar y reemplaza
+              la gestión informal por llamadas y mensajería con un control digital en tiempo real.
+            </p>
+          </div>
+        </article>
+        <article class="card bloque-card">
+          <span class="icon-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M9 20l-5.45-2.73A1 1 0 0 1 3 16.37V5.62a1 1 0 0 1 1.45-.9L9 7l6-3 5.55 2.27a1 1 0 0 1 .45.83v10.72a1 1 0 0 1-1.45.9L15 15l-6 5z"/><path d="M9 7v13M15 2v13"/></svg>
+          </span>
+          <div>
+            <h3>Alcance de esta evaluación</h3>
+            <p>
+              Definir los requisitos funcionales y no funcionales del sistema y la planificación del
+              desarrollo con Scrum, incluyendo backlog, estimación y criterios de aceptación.
+            </p>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid grid-3" aria-label="Métricas de éxito del proyecto">
+        <article class="card metrica reveal">
+          <div class="metrica-top">
+            <span class="icon-tile" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+            </span>
+          </div>
+          <p class="metrica-valor"><span data-contador="75" data-prefijo="-" data-sufijo="%">-75%</span></p>
+          <p class="metrica-label">de llamadas a la administración</p>
+          <p class="metrica-detalle">en los primeros 3 meses de operación.</p>
+        </article>
+        <article class="card metrica reveal" style="--rd: 90ms">
+          <div class="metrica-top">
+            <span class="icon-tile" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </span>
+          </div>
+          <p class="metrica-valor"><span data-contador="98" data-sufijo="%">98%</span></p>
+          <p class="metrica-label">de registros de subida/bajada en tiempo real</p>
+          <p class="metrica-detalle">durante el primer semestre.</p>
+        </article>
+        <article class="card metrica reveal" style="--rd: 180ms">
+          <div class="metrica-top">
+            <span class="icon-tile" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </span>
+          </div>
+          <p class="metrica-valor"><span data-contador="90" data-sufijo="%">90%</span></p>
+          <p class="metrica-label">de avisos de inasistencia anticipados</p>
+          <p class="metrica-detalle">con al menos 30 minutos de anticipación.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 3. ÁMBITO Y LÍMITES ==================== -->
+  <section class="section section-alt" id="ambito" aria-labelledby="ambito-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">02</span> Ámbito y límites</p>
+        <h2 id="ambito-titulo">Qué incluye RutaSegura y qué queda fuera</h2>
+        <p class="lead">
+          Delimitar el alcance evita expectativas equivocadas y retrabajo durante el desarrollo.
+        </p>
+      </div>
+
+      <div class="reveal">
+        <div class="subhead"><h3>Dentro del alcance</h3></div>
+        <ul class="alcance-lista">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>Gestión de furgones, conductores, apoderados y estudiantes.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>Programación de recorridos por furgón, conductor y horario.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>Registro de subida y bajada de estudiantes en ruta.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>Seguimiento GPS en tiempo real e historial de recorridos.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>Alertas automáticas de retraso y registro de imprevistos.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>Informes de gestión para la administración.</li>
+        </ul>
+      </div>
+
+      <div class="limites-grid reveal">
+        <div class="subhead"><h3>Fuera del alcance</h3></div>
+        <div class="grid grid-3">
+          <article class="card limite">
+            <div class="limite-head">
+              <span class="icon-tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg></span>
+              <div><span class="id-pill">LI-01</span><h3 style="margin-top:.35rem">Sin cobros ni pagos en línea</h3></div>
+            </div>
+            <p>El sistema no procesa transacciones económicas ni integra pasarelas de pago.</p>
+          </article>
+          <article class="card limite">
+            <div class="limite-head">
+              <span class="icon-tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg></span>
+              <div><span class="id-pill">LI-02</span><h3 style="margin-top:.35rem">Sin mantenciones ni combustible</h3></div>
+            </div>
+            <p>No cubre mantenciones, revisiones técnicas ni gestión de combustible de los furgones.</p>
+          </article>
+          <article class="card limite">
+            <div class="limite-head">
+              <span class="icon-tile" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg></span>
+              <div><span class="id-pill">LI-03</span><h3 style="margin-top:.35rem">Solo Android 8.0+ e iOS 13+</h3></div>
+            </div>
+            <p>Las aplicaciones móviles no dan soporte a versiones anteriores de estos sistemas.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 4. PERSPECTIVA DEL PRODUCTO ==================== -->
+  <section class="section" id="perspectiva" aria-labelledby="perspectiva-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">03</span> Perspectiva del producto</p>
+        <h2 id="perspectiva-titulo">Una definición clara del producto</h2>
+        <p class="lead">
+          El formato de elevator pitch alinea a todo el equipo sobre qué es RutaSegura, para quién
+          existe y en qué se diferencia de la operación actual.
+        </p>
+      </div>
+
+      <dl class="perspectiva reveal">
+        <div class="perspectiva-fila">
+          <dt>Para</dt>
+          <dd>administradores, conductores y apoderados del servicio de transporte escolar.</dd>
+        </div>
+        <div class="perspectiva-fila">
+          <dt>Quiénes</dt>
+          <dd>necesitan coordinar, monitorear y registrar el transporte diario de 450 estudiantes en 25 furgones de forma segura.</dd>
+        </div>
+        <div class="perspectiva-fila">
+          <dt>El</dt>
+          <dd>sistema <strong>RutaSegura</strong>.</dd>
+        </div>
+        <div class="perspectiva-fila">
+          <dt>Es una</dt>
+          <dd>plataforma web y móvil de gestión y trazabilidad del transporte escolar.</dd>
+        </div>
+        <div class="perspectiva-fila">
+          <dt>Que</dt>
+          <dd>proporciona trazabilidad GPS en tiempo real, gestión de capacidad por vehículo, notificaciones automáticas y control digital de asistencia.</dd>
+        </div>
+        <div class="perspectiva-fila">
+          <dt>A diferencia de</dt>
+          <dd>la gestión manual en papel, las planillas físicas y los grupos de mensajería desordenados.</dd>
+        </div>
+        <div class="perspectiva-fila destacada">
+          <dt>Nuestro producto</dt>
+          <dd>previene la sobreocupación antes de iniciar la ruta, permite registrar el abordaje en máximo 2 toques y automatiza las alertas sin distraer al conductor.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ==================== 5. FUNCIONES DEL PRODUCTO ==================== -->
+  <section class="section section-alt" id="funciones" aria-labelledby="funciones-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">04</span> Funciones del producto</p>
+        <h2 id="funciones-titulo">Seis capacidades que sostienen la operación</h2>
+        <p class="lead">
+          Cada función responde a un problema concreto del transporte escolar diario, desde la
+          gestión de entidades hasta los reportes de gestión.
+        </p>
+      </div>
+      <div class="grid grid-3" id="lista-funciones"><!-- Renderizado por JavaScript --></div>
+    </div>
+  </section>
+
+  <!-- ==================== 6. USUARIOS ==================== -->
+  <section class="section" id="usuarios" aria-labelledby="usuarios-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">05</span> Usuarios</p>
+        <h2 id="usuarios-titulo">Quiénes usan RutaSegura</h2>
+        <p class="lead">
+          Cuatro perfiles con entornos, edades y necesidades distintas: la interfaz se adapta a cada
+          uno sin perder una sola fuente de verdad.
+        </p>
+      </div>
+
+      <div class="grid grid-4" id="lista-usuarios"><!-- Renderizado por JavaScript --></div>
+
+      <div class="elicitacion reveal">
+        <div class="subhead"><h3>Técnicas de elicitación</h3></div>
+        <div class="grid grid-3" id="lista-elicitacion"><!-- Renderizado por JavaScript --></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 7. REQUISITOS FUNCIONALES ==================== -->
+  <section class="section section-alt" id="rf" aria-labelledby="rf-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">06</span> Requisitos funcionales</p>
+        <h2 id="rf-titulo">Requisitos funcionales RF-01 a RF-11</h2>
+        <p class="lead">
+          Filtra por área o busca por palabra clave para explorar lo que el sistema debe hacer.
+        </p>
+      </div>
+
+      <div class="filtros reveal">
+        <div class="filtros-barra">
+          <div class="campo-busqueda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <label class="sr-only" for="rf-buscar">Buscar requisito funcional</label>
+            <input type="search" id="rf-buscar" placeholder="Buscar por ID o texto (ej. GPS, capacidad)…" autocomplete="off">
+          </div>
+          <p class="filtro-estado" id="rf-estado" role="status" aria-live="polite">11 requisitos funcionales</p>
+        </div>
+        <div class="filtros-grupo" role="group" aria-label="Filtrar requisitos funcionales por área">
+          <span>Área</span>
+          <button class="filtro-btn" type="button" data-area="Todas" aria-pressed="true">Todas</button>
+          <button class="filtro-btn" type="button" data-area="Gestión" aria-pressed="false">Gestión</button>
+          <button class="filtro-btn" type="button" data-area="Rutas" aria-pressed="false">Rutas</button>
+          <button class="filtro-btn" type="button" data-area="Operación" aria-pressed="false">Operación</button>
+          <button class="filtro-btn" type="button" data-area="Alertas" aria-pressed="false">Alertas</button>
+          <button class="filtro-btn" type="button" data-area="Monitoreo" aria-pressed="false">Monitoreo</button>
+          <button class="filtro-btn" type="button" data-area="Informes" aria-pressed="false">Informes</button>
+        </div>
+      </div>
+
+      <ul class="rf-lista" id="lista-rf"><!-- Renderizado por JavaScript --></ul>
+    </div>
+  </section>
+
+  <!-- ==================== 8. REQUISITOS NO FUNCIONALES ==================== -->
+  <section class="section" id="rnf" aria-labelledby="rnf-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">07</span> Requisitos no funcionales</p>
+        <h2 id="rnf-titulo">Cómo debe comportarse el sistema</h2>
+        <p class="lead">
+          Rendimiento, seguridad, usabilidad y normativa: las cualidades medibles que garantizan una
+          operación confiable en las horas punta.
+        </p>
+      </div>
+      <div class="reveal" id="rnf-tabs"><!-- Pestañas renderizadas por JavaScript --></div>
+    </div>
+  </section>
+
+  <!-- ==================== 9. PLANIFICACIÓN SCRUM ==================== -->
+  <section class="section section-alt" id="scrum" aria-labelledby="scrum-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">08</span> Planificación Scrum</p>
+        <h2 id="scrum-titulo">Cinco sprints para construir el MVP</h2>
+        <p class="lead">
+          Sprints de 2 semanas con entregables verificables. El equipo prioriza primero las historias
+          de mayor valor para la operación.
+        </p>
+      </div>
+
+      <div class="grid grid-2 equipo-grid" id="equipo"><!-- Renderizado por JavaScript --></div>
+
+      <div class="reveal">
+        <div class="subhead"><h3>Línea de tiempo</h3></div>
+        <ol class="timeline" id="timeline"><!-- Renderizado por JavaScript --></ol>
+      </div>
+
+      <div class="card dod reveal">
+        <div class="subhead" style="margin-bottom:.4rem"><h3 style="font-size:1.05rem">Definition of Done global</h3></div>
+        <ul class="dod-lista" id="dod-lista"><!-- Renderizado por JavaScript --></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 10. HISTORIAS DE USUARIO ==================== -->
+  <section class="section" id="historias" aria-labelledby="historias-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">09</span> Historias de usuario</p>
+        <h2 id="historias-titulo">Nueve historias con criterios de aceptación</h2>
+        <p class="lead">
+          Cada historia incluye su rol, la necesidad y los criterios verificables que definen cuándo
+          está terminada. Usa los filtros o expande cada tarjeta.
+        </p>
+      </div>
+
+      <div class="hu-filtros reveal">
+        <div class="filtros-grupo" role="group" aria-label="Filtrar historias por prioridad">
+          <span>Prioridad</span>
+          <button class="filtro-btn" type="button" data-prio="Todas" aria-pressed="true">Todas</button>
+          <button class="filtro-btn" type="button" data-prio="Alta" aria-pressed="false">Alta</button>
+          <button class="filtro-btn" type="button" data-prio="Media" aria-pressed="false">Media</button>
+          <button class="filtro-btn" type="button" data-prio="Baja" aria-pressed="false">Baja</button>
+        </div>
+        <div class="filtros-grupo" role="group" aria-label="Filtrar historias por sprint">
+          <span>Sprint</span>
+          <button class="filtro-btn" type="button" data-sprint="Todos" aria-pressed="true">Todos</button>
+          <button class="filtro-btn" type="button" data-sprint="1" aria-pressed="false">Sprint 1</button>
+          <button class="filtro-btn" type="button" data-sprint="2" aria-pressed="false">Sprint 2</button>
+          <button class="filtro-btn" type="button" data-sprint="3" aria-pressed="false">Sprint 3</button>
+          <button class="filtro-btn" type="button" data-sprint="4" aria-pressed="false">Sprint 4</button>
+        </div>
+        <p class="filtro-estado" id="hu-estado" role="status" aria-live="polite">Mostrando 9 de 9 historias</p>
+      </div>
+
+      <div class="hu-lista reveal" id="lista-historias"><!-- Renderizado por JavaScript --></div>
+    </div>
+  </section>
+
+  <!-- ==================== 11. PRODUCT BACKLOG ==================== -->
+  <section class="section section-alt" id="backlog" aria-labelledby="backlog-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">10</span> Product Backlog</p>
+        <h2 id="backlog-titulo">Backlog priorizado y refinado</h2>
+        <p class="lead">
+          Nueve historias en estado “Listo”. Haz clic en los encabezados para ordenar la tabla por
+          HU, historia, épica, prioridad, sprint, estado o story points.
+        </p>
+      </div>
+
+      <div class="tabla-scroll reveal">
+        <table class="backlog">
+          <caption>Product Backlog de RutaSegura: 9 historias, 41 story points en total.</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="ordenable" aria-sort="none"><button type="button" data-orden="hu">HU <span class="sort-ind" aria-hidden="true"></span></button></th>
+              <th scope="col" class="ordenable" aria-sort="none"><button type="button" data-orden="historia">Historia <span class="sort-ind" aria-hidden="true"></span></button></th>
+              <th scope="col" class="ordenable" aria-sort="none"><button type="button" data-orden="epica">Épica <span class="sort-ind" aria-hidden="true"></span></button></th>
+              <th scope="col" class="ordenable" aria-sort="none"><button type="button" data-orden="prioridad">Prioridad <span class="sort-ind" aria-hidden="true"></span></button></th>
+              <th scope="col" class="ordenable" aria-sort="none"><button type="button" data-orden="sprint">Sprint <span class="sort-ind" aria-hidden="true"></span></button></th>
+              <th scope="col" class="ordenable" aria-sort="none"><button type="button" data-orden="estado">Estado <span class="sort-ind" aria-hidden="true"></span></button></th>
+              <th scope="col" class="ordenable" aria-sort="none"><button type="button" data-orden="sp">SP <span class="sort-ind" aria-hidden="true"></span></button></th>
+              <th scope="col">Notas de refinamiento</th>
+            </tr>
+          </thead>
+          <tbody id="backlog-body"><!-- Renderizado por JavaScript --></tbody>
+        </table>
+      </div>
+      <p class="tabla-nota">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        Todas las historias se encuentran en estado “Listo” para su construcción.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== 12. ESTIMACIÓN DE ESFUERZO ==================== -->
+  <section class="section" id="estimacion" aria-labelledby="estimacion-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">11</span> Estimación de esfuerzo</p>
+        <h2 id="estimacion-titulo">Story Points por historia</h2>
+        <p class="lead">
+          Estimación con Planning Poker y Fibonacci modificada (1, 2, 3, 5, 8). Pasa el cursor o
+          enfoca una barra para ver la justificación técnica.
+        </p>
+      </div>
+
+      <figure class="card chart-card reveal" id="chart-wrap">
+        <div class="chart-head">
+          <h3>Esfuerzo relativo por historia de usuario</h3>
+          <span class="chip">41 SP · 9 historias</span>
+        </div>
+        <svg id="chart-svg" viewBox="0 0 760 340" role="img" aria-label="Gráfico de barras de story points por historia de usuario"><!-- Renderizado por JavaScript --></svg>
+        <div class="chart-tip" id="chart-tip" role="tooltip" hidden></div>
+      </figure>
+
+      <ul class="estimacion-notas" id="lista-estimacion"><!-- Renderizado por JavaScript --></ul>
+
+      <div class="planning-poker">
+        <span>Escala Planning Poker:</span>
+        <span class="chip">1</span><span class="chip">2</span><span class="chip">3</span><span class="chip">5</span><span class="chip">8</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 13. RESUMEN Y CONCLUSIONES ==================== -->
+  <section class="section section-alt" id="conclusiones" aria-labelledby="conclusiones-titulo">
+    <div class="container">
+      <div class="seccion-head reveal">
+        <p class="kicker"><span class="kicker-num" aria-hidden="true">12</span> Resumen y conclusiones</p>
+        <h2 id="conclusiones-titulo">Por qué una buena especificación cambia el proyecto</h2>
+        <p class="lead">
+          La disciplina de requisitos y la planificación por sprints reducen el retrabajo y aceleran
+          la entrega de valor.
+        </p>
+      </div>
+      <div class="grid grid-3" id="lista-conclusiones"><!-- Renderizado por JavaScript --></div>
+    </div>
+  </section>
+</main>
+
+<!-- ==================== 14. FOOTER ==================== -->
+<footer class="footer" id="footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="brand" href="#inicio" aria-label="RutaSegura — volver al inicio">
+        <span class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10"/><path d="M2 16h20"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/><rect x="5" y="7" width="14" height="4" rx="1"/></svg>
+        </span>
+        <span>Ruta<span class="brand-acento">Segura</span></span>
+      </a>
+      <p class="footer-tagline">Plataforma web y móvil de gestión y trazabilidad del transporte escolar.</p>
+    </div>
+
+    <div>
+      <h3>Integrantes</h3>
+      <ul>
+        <li><strong>Mariano Cornejo</strong><br><span>Scrum Master y Product Owner</span></li>
+        <li><strong>Maximiliano Herrera</strong><br><span>Equipo de Desarrollo</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>Datos del curso</h3>
+      <ul>
+        <li><strong>Ingeniería de Requisitos</strong><br><span>RQY1101 · Evaluación N°2</span></li>
+        <li><span>Sección 005D · Grupo N°5</span></li>
+        <li><span>Docente: Rocío Contreras Aguila</span></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>Historial de versiones</h3>
+      <ul id="lista-versiones"><!-- Renderizado por JavaScript --></ul>
+    </div>
+  </div>
+  <div class="container">
+    <div class="footer-bottom">
+      <p>© 2026 RutaSegura · Grupo N°5 · Proyecto académico de Ingeniería de Requisitos.</p>
+      <p>Hecho con HTML, CSS y JavaScript, sin frameworks.</p>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="volver-arriba" type="button" aria-label="Volver al inicio de la página">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+'use strict';
+
+/* ==========================================================================
+   DATOS EDITABLES
+   Todo el contenido repetitivo vive aquí: cambia textos, IDs o valores sin
+   tocar el HTML. El markup solo declara los contenedores.
+   ========================================================================== */
+
+/* Íconos inline (solo el contenido interno del <svg>) */
+const ICONOS = {
+  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  navigation: '<polygon points="3 11 22 2 13 21 11 13 3 11"/>',
+  activity: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  bell: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+  fileText: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8M16 17H8M10 9H8"/>',
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  bus: '<path d="M2 16V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10"/><path d="M2 16h20"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/><rect x="5" y="7" width="14" height="4" rx="1"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  userCheck: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+  clipboard: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6M9 16h6"/>',
+  message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  smartphone: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  checkCircle: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  award: '<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>',
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  chevronDown: '<polyline points="6 9 12 15 18 9"/>'
+};
+
+/* Funciones del producto (FE) */
+const FUNCIONES = [
+  { id: 'FE-01', icono: 'users', titulo: 'Gestión de entidades',
+    texto: 'Estudiantes, apoderados, conductores y furgones, respetando la capacidad límite de cada vehículo.' },
+  { id: 'FE-02', icono: 'navigation', titulo: 'Planificación de recorridos',
+    texto: 'Planificación e historial de recorridos, con furgón, conductor, horario y estudiantes asignados.' },
+  { id: 'FE-03', icono: 'activity', titulo: 'Trazabilidad en tiempo real',
+    texto: 'Inicio y fin de ruta, más el registro de abordaje y descenso en máximo 2 toques.' },
+  { id: 'FE-04', icono: 'calendar', titulo: 'Control de inasistencias',
+    texto: 'Control de inasistencias informadas por los apoderados, con actualización automática de la lista.' },
+  { id: 'FE-05', icono: 'bell', titulo: 'Notificaciones e imprevistos',
+    texto: 'Notificaciones automáticas de retrasos mayores a 10 minutos y registro de imprevistos en ruta.' },
+  { id: 'FE-06', icono: 'fileText', titulo: 'Consulta y reportes',
+    texto: 'Consulta y reportes de gestión para la administración: capacidad, puntualidad e inasistencias.' }
+];
+
+/* Usuarios del sistema */
+const USUARIOS = [
+  { nombre: 'Administrador', icono: 'monitor', entorno: 'Web', plataforma: 'Chrome · Edge · Safari', edad: '25–55 años',
+    descripcion: 'Gestiona rutas, asignaciones, capacidad, incidencias e informes. Trabaja desde el navegador.',
+    necesidad: 'Control global de la operación y de la capacidad de cada furgón.' },
+  { nombre: 'Conductor', icono: 'bus', entorno: 'App móvil', plataforma: 'Android · iOS', edad: '25–60 años',
+    descripcion: 'Interfaz ultra simple con botones grandes; registra subidas y bajadas en máximo 2 toques.',
+    necesidad: 'Marcar abordaje y descenso sin distraerse de la conducción.' },
+  { nombre: 'Apoderado', icono: 'eye', entorno: 'App móvil', plataforma: 'Android · iOS', edad: '20–50 años',
+    descripcion: 'Ve el trayecto GPS de su pupilo, informa ausencias y recibe alertas push.',
+    necesidad: 'Saber dónde viene el furgón y anticipar la recogida sin llamar.' },
+  { nombre: 'Asistente de transporte', icono: 'userCheck', entorno: 'App móvil', plataforma: 'Android · iOS', edad: '20–50 años',
+    descripcion: 'Apoya la toma de asistencia con permisos de rol delegado para la ruta activa.',
+    necesidad: 'Asistir al conductor con una vista acotada y permisos seguros.' }
+];
+
+/* Técnicas de elicitación utilizadas */
+const ELICITACION = [
+  { titulo: 'Observación directa en ruta', icono: 'eye', hu: 'HU-01',
+    texto: 'Se acompañaron recorridos reales y se confirmó que el chofer no puede digitar mientras conduce: de ahí nace el marcaje en máximo 2 toques.' },
+  { titulo: 'Cuestionarios a 450 apoderados', icono: 'clipboard', hu: 'HU-03',
+    texto: 'Las encuestas masivas permitieron fijar el umbral de la alerta de retraso en 10 minutos, equilibrando anticipación y ruido.' },
+  { titulo: 'Entrevistas estructuradas a la administración', icono: 'message', hu: 'HU-02',
+    texto: 'Las entrevistas revelaron la necesidad de bloquear la asignación al alcanzar la capacidad del padrón MTT.' }
+];
+
+/* Requisitos funcionales (RF) */
+const RF = [
+  { id: 'RF-01', area: 'Gestión', texto: 'Registro de estudiantes, apoderados, conductores y vehículos.' },
+  { id: 'RF-02', area: 'Gestión', texto: 'Direcciones autorizadas de recogida y entrega.' },
+  { id: 'RF-03', area: 'Rutas', texto: 'Creación y programación de recorridos (furgón, conductor, horario, alumnos).' },
+  { id: 'RF-04', area: 'Rutas', texto: 'Bloqueo de asignación al alcanzar la capacidad del padrón.' },
+  { id: 'RF-05', area: 'Operación', texto: 'Inicio y fin de recorrido desde la app.' },
+  { id: 'RF-06', area: 'Operación', texto: 'Registro en tiempo real de subida y bajada.' },
+  { id: 'RF-07', area: 'Alertas', texto: 'Avisos de inasistencia que actualizan la lista del conductor.' },
+  { id: 'RF-08', area: 'Alertas', texto: 'Notificaciones push ante retrasos mayores a 10 min.' },
+  { id: 'RF-09', area: 'Alertas', texto: 'Registro de incidencias en ruta (panas, congestión).' },
+  { id: 'RF-10', area: 'Monitoreo', texto: 'Ubicación GPS en tiempo real e historial para apoderados.' },
+  { id: 'RF-11', area: 'Informes', texto: 'Informes de uso de capacidad y cumplimiento para administración.' }
+];
+
+/* Requisitos no funcionales (RNF), agrupados por categoría */
+const RNF = [
+  { id: 'rendimiento', nombre: 'Rendimiento', icono: 'zap', items: [
+    { id: 'REND-01', texto: 'El marcaje de subida o bajada se confirma en ≤1,5 s.' },
+    { id: 'REND-02', texto: 'Soporta un mínimo de 600 conexiones simultáneas en horas punta (06:30–08:30 y 13:00–17:30).' },
+    { id: 'REND-03', texto: 'Las notificaciones push se entregan en ≤3 s desde el evento.' },
+    { id: 'REND-04', texto: 'La ubicación GPS se actualiza cada ≤5 s durante las rutas activas.' },
+    { id: 'REND-05', texto: 'Los reportes mensuales se generan en ≤4 s con hasta 10.000 registros.' }
+  ]},
+  { id: 'seguridad', nombre: 'Seguridad', icono: 'shield', items: [
+    { id: 'SEG-01', texto: 'Inicio de sesión con usuario y contraseña para todos los roles.' },
+    { id: 'SEG-02', texto: 'La ubicación solo es visible para la administración y los apoderados con ruta activa.' },
+    { id: 'SEG-03', texto: 'Permisos por rol mediante tokens JWT.' },
+    { id: 'SEG-04', texto: 'Historial de cambios con autor y fecha (auditoría).' }
+  ]},
+  { id: 'usabilidad', nombre: 'Usabilidad y normativa', icono: 'smartphone', items: [
+    { id: 'USAB-01', texto: 'Botones de al menos 48×48 dp y acciones en máximo 2 toques.' },
+    { id: 'USAB-02', texto: 'Compatibilidad con Android 8.0+, iOS 13+ y navegadores Chrome, Edge y Safari.' },
+    { id: 'USAB-03', texto: 'No se asignan más estudiantes que la capacidad del vehículo según el padrón MTT.' }
+  ]}
+];
+/* Equipo Scrum */
+const EQUIPO = [
+  { nombre: 'Mariano Cornejo', icono: 'target', rol: 'Scrum Master y Product Owner',
+    descripcion: 'Coordina el proceso Scrum, prioriza el Product Backlog y representa la voz del cliente.',
+    etiquetas: ['Facilitación', 'Priorización'] },
+  { nombre: 'Maximiliano Herrera', icono: 'code', rol: 'Equipo de Desarrollo',
+    descripcion: 'Desarrollo web, móvil y backend del sistema RutaSegura.',
+    etiquetas: ['Web', 'Móvil', 'Backend'] }
+];
+
+/* Planificación por sprints (2 semanas cada uno) */
+const SPRINTS = [
+  { n: '0', nombre: 'Elicitación', semanas: 'Sem. 1–2',
+    descripcion: 'Visión del producto, métricas de éxito, arquitectura inicial y configuración de Jira.',
+    requisitos: ['ERS', 'Visión', 'Métricas'],
+    entregable: 'ERS y Visión' },
+  { n: '1', nombre: 'Backoffice', semanas: 'Sem. 3–4',
+    descripcion: 'Panel administrativo web con registro de entidades, direcciones y control de capacidad.',
+    requisitos: ['RF-01', 'RF-02', 'RF-04'],
+    entregable: 'Panel web administrativo' },
+  { n: '2', nombre: 'App Conductor/Asistente', semanas: 'Sem. 5–6',
+    descripcion: 'Aplicación móvil para la operación en ruta, incluido el registro de posición GPS.',
+    requisitos: ['RF-05', 'RF-06', 'GPS'],
+    entregable: 'App móvil conductor y asistente' },
+  { n: '3', nombre: 'App Apoderado', semanas: 'Sem. 7–8',
+    descripcion: 'Aplicación del apoderado con avisos de inasistencia, alertas push y seguimiento GPS.',
+    requisitos: ['RF-07', 'RF-08', 'RF-10'],
+    entregable: 'App apoderado' },
+  { n: '4', nombre: 'Reportes y cierre', semanas: 'Sem. 9–10',
+    descripcion: 'Reportes de gestión, logs de auditoría (SEG-04) y pruebas de carga del sistema completo.',
+    requisitos: ['RF-11', 'SEG-04', 'Pruebas de carga'],
+    entregable: 'Sistema integrado' }
+];
+
+/* Definition of Done global */
+const DOD = [
+  'Código revisado por un par sin advertencias críticas.',
+  '100% de los criterios de aceptación cumplidos.',
+  'Pruebas funcionales en Android/iOS y navegador.',
+  'Tiempos verificados: ≤1,5 s en el marcaje y ≤3 s en las notificaciones.',
+  'Datos GPS encriptados y roles respetados.'
+];
+
+/* Historias de usuario con criterios de aceptación */
+const HISTORIAS = [
+  { hu: 'HU-01', titulo: 'Marcaje rápido', rol: 'Conductor', prioridad: 'Alta', sprint: 2, sp: 5,
+    relato: 'Como conductor, quiero registrar la subida y bajada de estudiantes en máximo 2 toques, para mantener la trazabilidad del recorrido sin distraerme de la conducción.',
+    criterios: [
+      { id: 'CA-1.1', texto: 'El marcaje se realiza en máximo 2 toques, con botones de al menos 48×48 dp.' },
+      { id: 'CA-1.2', texto: 'El sistema captura automáticamente fecha, hora y posición GPS.' },
+      { id: 'CA-1.3', texto: 'Opera en modo offline con SQLite local y sincroniza al recuperar conexión.' }
+    ] },
+  { hu: 'HU-02', titulo: 'Gestión de capacidad', rol: 'Administrador', prioridad: 'Alta', sprint: 1, sp: 8,
+    relato: 'Como administrador, quiero que el sistema bloquee la asignación de estudiantes cuando un furgón alcanza su capacidad del padrón, para prevenir la sobreocupación.',
+    criterios: [
+      { id: 'CA-2.1', texto: 'La asignación se bloquea automáticamente al alcanzar la capacidad del padrón.' },
+      { id: 'CA-2.2', texto: 'Se muestra una alerta visual cuando el furgón llega al 100% de su capacidad.' }
+    ] },
+  { hu: 'HU-03', titulo: 'Alertas de retraso', rol: 'Apoderado', prioridad: 'Media', sprint: 3, sp: 3,
+    relato: 'Como apoderado, quiero recibir una notificación automática cuando el furgón se retrasa más de 10 minutos, para organizar la recogida de mi hijo sin tener que llamar.',
+    criterios: [
+      { id: 'CA-3.1', texto: 'Se envía una notificación push cuando el retraso supera los 10 minutos.' },
+      { id: 'CA-3.2', texto: 'La notificación se entrega en menos de 3 segundos desde el evento.' }
+    ] },
+  { hu: 'HU-04', titulo: 'Crear y programar recorridos', rol: 'Administrador', prioridad: 'Alta', sprint: 1, sp: 5,
+    relato: 'Como administrador, quiero crear y programar recorridos asignando furgón, conductor, horario y alumnos, para asegurar que cada ruta cumpla con el padrón.',
+    criterios: [
+      { id: 'CA-4.1', texto: 'Solo se asignan conductores habilitados y furgones con capacidad disponible.' },
+      { id: 'CA-4.2', texto: 'Se define la secuencia de paradas con horarios y direcciones autorizadas.' }
+    ] },
+  { hu: 'HU-05', titulo: 'Reporte de inasistencias', rol: 'Apoderado', prioridad: 'Media', sprint: 3, sp: 3,
+    relato: 'Como apoderado, quiero informar la inasistencia de mi hijo desde la app, para que el conductor no espere en la parada.',
+    criterios: [
+      { id: 'CA-5.1', texto: 'La lista del conductor se actualiza automáticamente al recibir el aviso.' },
+      { id: 'CA-5.2', texto: 'El aviso puede emitirse hasta 24 horas antes del recorrido.' }
+    ] },
+  { hu: 'HU-06', titulo: 'Ubicación en tiempo real', rol: 'Apoderado', prioridad: 'Media', sprint: 3, sp: 5,
+    relato: 'Como apoderado, quiero ver en un mapa la ubicación del furgón durante el recorrido de mi hijo, para saber cuándo llegará a la parada.',
+    criterios: [
+      { id: 'CA-6.1', texto: 'El mapa se habilita solo durante rutas activas del pupilo.' },
+      { id: 'CA-6.2', texto: 'La ubicación se actualiza cada ≤5 segundos.' }
+    ] },
+  { hu: 'HU-07', titulo: 'Registro de incidencias', rol: 'Conductor', prioridad: 'Baja', sprint: 4, sp: 2,
+    relato: 'Como conductor, quiero reportar imprevistos en ruta con un formulario rápido, para que la administración y los apoderados se enteren de inmediato.',
+    criterios: [
+      { id: 'CA-7.1', texto: 'Formulario rápido con categorías: falla mecánica, congestión y accidente.' },
+      { id: 'CA-7.2', texto: 'La notificación llega de inmediato al panel junto con la posición GPS.' }
+    ] },
+  { hu: 'HU-08', titulo: 'Reportes de gestión', rol: 'Administrador', prioridad: 'Baja', sprint: 4, sp: 5,
+    relato: 'Como administrador, quiero consultar reportes mensuales de capacidad, puntualidad e inasistencias, para tomar decisiones basadas en datos.',
+    criterios: [
+      { id: 'CA-8.1', texto: 'El reporte incluye métricas mensuales de capacidad, puntualidad e inasistencias.' },
+      { id: 'CA-8.2', texto: 'El reporte se genera en ≤4 s con hasta 10.000 registros.' }
+    ] },
+  { hu: 'HU-09', titulo: 'Control delegado de asistencia', rol: 'Asistente', prioridad: 'Alta', sprint: 2, sp: 5,
+    relato: 'Como asistente de transporte, quiero tomar la asistencia de la ruta con permisos delegados, para apoyar al conductor cuando sea necesario.',
+    criterios: [
+      { id: 'CA-9.1', texto: 'Autenticación con rol delegado válido solo para la ruta activa.' },
+      { id: 'CA-9.2', texto: 'La pantalla del conductor y la base de datos se actualizan en <1,5 s.' }
+    ] }
+];
+
+/* Product Backlog priorizado (orden de referencia) */
+const BACKLOG = [
+  { hu: 'HU-02', historia: 'Gestión de capacidad', epica: 'Capacidad', prioridad: 'Alta', sprint: 1, estado: 'Listo', sp: 8,
+    notas: 'Validación contra capacidad del padrón MTT' },
+  { hu: 'HU-04', historia: 'Crear y programar recorridos', epica: 'Rutas', prioridad: 'Alta', sprint: 1, estado: 'Listo', sp: 5,
+    notas: 'Secuencias de paradas automáticas' },
+  { hu: 'HU-01', historia: 'Marcaje rápido', epica: 'Trazabilidad', prioridad: 'Alta', sprint: 2, estado: 'Listo', sp: 5,
+    notas: 'Soporte offline SQLite' },
+  { hu: 'HU-09', historia: 'Control delegado de asistencia', epica: 'Trazabilidad', prioridad: 'Alta', sprint: 2, estado: 'Listo', sp: 5,
+    notas: 'Vista acotada a la lista activa del furgón' },
+  { hu: 'HU-05', historia: 'Reporte de inasistencias', epica: 'Ausencias', prioridad: 'Media', sprint: 3, estado: 'Listo', sp: 3,
+    notas: 'Aviso hasta 24 h antes' },
+  { hu: 'HU-03', historia: 'Alertas de retraso', epica: 'Alertas', prioridad: 'Media', sprint: 3, estado: 'Listo', sp: 3,
+    notas: 'Umbral de 10 min' },
+  { hu: 'HU-06', historia: 'Ubicación en tiempo real', epica: 'Monitoreo', prioridad: 'Media', sprint: 3, estado: 'Listo', sp: 5,
+    notas: 'Seguridad por roles (JWT)' },
+  { hu: 'HU-07', historia: 'Registro de incidencias', epica: 'Incidencias', prioridad: 'Baja', sprint: 4, estado: 'Listo', sp: 2,
+    notas: 'Lista de tipos de pana estandarizada' },
+  { hu: 'HU-08', historia: 'Reportes de gestión', epica: 'Reportes', prioridad: 'Baja', sprint: 4, estado: 'Listo', sp: 5,
+    notas: 'Máximo 10.000 registros por reporte' }
+];
+
+/* Estimación de esfuerzo (Planning Poker) */
+const ESTIMACION = [
+  { hu: 'HU-01', sp: 5, justificacion: 'UI con botones ≥48 dp y soporte offline con SQLite.' },
+  { hu: 'HU-02', sp: 8, justificacion: 'Reglas de negocio en la BD central para bloquear sobrecupos según el padrón MTT.' },
+  { hu: 'HU-03', sp: 3, justificacion: 'Integración con Firebase Cloud Messaging.' },
+  { hu: 'HU-04', sp: 5, justificacion: 'Lógica multi-entidad: furgón, conductor, horario y alumnos.' },
+  { hu: 'HU-05', sp: 3, justificacion: 'Firebase Cloud Messaging y actualización de estados.' },
+  { hu: 'HU-06', sp: 5, justificacion: 'Google Maps con JWT y refresco cada 5 segundos.' },
+  { hu: 'HU-07', sp: 2, justificacion: 'Formulario simple con campos prefijados y GPS.' },
+  { hu: 'HU-08', sp: 5, justificacion: 'Consultas SQL sobre hasta 10.000 registros.' },
+  { hu: 'HU-09', sp: 5, justificacion: 'Sincronización bidireccional conductor-asistente.' }
+];
+
+/* Conclusiones */
+const CONCLUSIONES = [
+  { icono: 'award', titulo: 'Impacto de la Ingeniería de Requisitos',
+    texto: 'Los criterios de aceptación y los límites de alcance evitan el retrabajo, que puede llegar hasta el 50% del costo del proyecto.' },
+  { icono: 'layers', titulo: 'Aporte de Scrum',
+    texto: 'Priorizar por sprints permite construir primero las historias de mayor valor (HU-02 y HU-01) y tener un MVP desde las primeras semanas.' },
+  { icono: 'target', titulo: 'Cumplimiento de objetivos',
+    texto: 'Cada funcionalidad responde directamente a los KPIs definidos por la empresa.' }
+];
+
+/* Historial de versiones del informe */
+const VERSIONES = [
+  { fecha: '17/10/2026', texto: 'Versión final del informe' },
+  { fecha: '06/09/2026', texto: 'Primeras mejoras al informe' }
+];
+
+/* ==========================================================================
+   UTILIDADES
+   ========================================================================== */
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+const esc = (str) => String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ico = (nombre, clases = '') =>
+  `<svg class="ic ${clases}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONOS[nombre] || ''}</svg>`;
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+/* ==========================================================================
+   RENDERIZADO DE SECCIONES
+   ========================================================================== */
+
+/** Funciones del producto */
+function renderFunciones() {
+  $('#lista-funciones').innerHTML = FUNCIONES.map((f, i) => `
+    <article class="card funcion reveal" style="--rd:${i * 45}ms">
+      <div class="funcion-head">
+        <span class="icon-tile">${ico(f.icono)}</span>
+        <span class="id-pill">${f.id}</span>
+      </div>
+      <h3>${esc(f.titulo)}</h3>
+      <p>${esc(f.texto)}</p>
+    </article>`).join('');
+}
+
+/** Usuarios y técnicas de elicitación */
+function renderUsuarios() {
+  $('#lista-usuarios').innerHTML = USUARIOS.map((u, i) => `
+    <article class="card usuario-card reveal" style="--rd:${i * 45}ms">
+      <header class="usuario-head">
+        <span class="icon-tile">${ico(u.icono)}</span>
+        <div>
+          <h3>${esc(u.nombre)}</h3>
+          <p class="usuario-meta">${esc(u.entorno)} · ${esc(u.edad)}</p>
+        </div>
+      </header>
+      <p>${esc(u.descripcion)}</p>
+      <p class="usuario-meta">${esc(u.plataforma)}</p>
+      <p class="usuario-necesidad">${ico('target')}<span><strong>Necesidad principal:</strong> ${esc(u.necesidad)}</span></p>
+    </article>`).join('');
+
+  $('#lista-elicitacion').innerHTML = ELICITACION.map((e, i) => `
+    <article class="card elicitacion-card reveal" style="--rd:${i * 55}ms">
+      <h4>${ico(e.icono)} ${esc(e.titulo)} <span class="id-pill">${e.hu}</span></h4>
+      <p>${esc(e.texto)}</p>
+    </article>`).join('');
+}
+
+/** Requisitos funcionales (con estado de filtros) */
+let rfArea = 'Todas';
+let rfBusqueda = '';
+
+function renderRF() {
+  const q = rfBusqueda.trim().toLowerCase();
+  const lista = RF.filter((r) =>
+    (rfArea === 'Todas' || r.area === rfArea) &&
+    (!q || `${r.id} ${r.texto} ${r.area}`.toLowerCase().includes(q))
+  );
+  const contenedor = $('#lista-rf');
+
+  contenedor.innerHTML = lista.length
+    ? lista.map((r) => `
+      <li class="rf-item">
+        <span class="id-pill">${r.id}</span>
+        <p>${esc(r.texto)}</p>
+        <span class="rf-area">${esc(r.area)}</span>
+      </li>`).join('')
+    : '<li class="empty-state">No se encontraron requisitos con esos filtros. Prueba con otra búsqueda.</li>';
+
+  $('#rf-estado').textContent = `${lista.length} de ${RF.length} requisitos funcionales`;
+}
+
+/** Requisitos no funcionales (pestañas) */
+function renderRNF() {
+  const root = $('#rnf-tabs');
+  root.innerHTML = `
+    <div class="tabs" role="tablist" aria-label="Categorías de requisitos no funcionales">
+      ${RNF.map((cat, i) => `
+        <button class="tab-btn" role="tab" type="button" id="tab-${cat.id}"
+          aria-selected="${i === 0}" aria-controls="panel-${cat.id}" tabindex="${i === 0 ? 0 : -1}">
+          ${ico(cat.icono)} ${cat.nombre}
+        </button>`).join('')}
+    </div>
+    ${RNF.map((cat, i) => `
+      <div class="tab-panel" role="tabpanel" id="panel-${cat.id}" aria-labelledby="tab-${cat.id}" tabindex="0" ${i === 0 ? '' : 'hidden'}>
+        <ul class="rnf-lista">
+          ${cat.items.map((it) => `
+            <li class="rnf-item">
+              <span class="id-pill">${it.id}</span>
+              <p>${esc(it.texto)}</p>
+            </li>`).join('')}
+        </ul>
+      </div>`).join('')}`;
+}
+
+/** Equipo, timeline de sprints y Definition of Done */
+function renderScrum() {
+  $('#equipo').innerHTML = EQUIPO.map((m, i) => `
+    <article class="card equipo-card reveal" style="--rd:${i * 70}ms">
+      <span class="icon-tile">${ico(m.icono)}</span>
+      <div>
+        <h3>${esc(m.nombre)}</h3>
+        <p class="equipo-rol">${esc(m.rol)}</p>
+        <p>${esc(m.descripcion)}</p>
+        <div class="equipo-meta">${m.etiquetas.map((e) => `<span class="chip">${esc(e)}</span>`).join('')}</div>
+      </div>
+    </article>`).join('');
+
+  $('#timeline').innerHTML = SPRINTS.map((s) => `
+    <li class="timeline-item reveal">
+      <span class="timeline-marca" aria-hidden="true">S${s.n}</span>
+      <article class="timeline-card">
+        <div class="timeline-head">
+          <h3>Sprint ${s.n} — ${esc(s.nombre)}</h3>
+          <span class="chip badge-sprint">${esc(s.semanas)}</span>
+        </div>
+        <p>${esc(s.descripcion)}</p>
+        <div class="rf-chips">${s.requisitos.map((r) => `<span class="chip">${esc(r)}</span>`).join('')}</div>
+        <p class="entregable">${ico('checkCircle')} <strong>Entregable:</strong> ${esc(s.entregable)}</p>
+      </article>
+    </li>`).join('');
+
+  $('#dod-lista').innerHTML = DOD.map((t) => `
+    <li>${ico('checkCircle')}<span>${esc(t)}</span></li>`).join('');
+}
+
+/** Historias de usuario (acordeón + filtros) */
+let huPrio = 'Todas';
+let huSprint = 'Todos';
+
+function renderHistorias() {
+  $('#lista-historias').innerHTML = HISTORIAS.map((h) => `
+    <article class="hu-card" data-prio="${h.prioridad}" data-sprint="${h.sprint}">
+      <h3 style="margin:0">
+        <button type="button" class="hu-trigger" aria-expanded="false" aria-controls="panel-${h.hu}">
+          <span class="id-pill">${h.hu}</span>
+          <span class="hu-titulo">${esc(h.titulo)} <span class="hu-rol">· ${esc(h.rol)}</span></span>
+          <span class="chip badge-${h.prioridad.toLowerCase()}">${h.prioridad}</span>
+          <span class="chip badge-sprint">Sprint ${h.sprint}</span>
+          <span class="hu-sp">${h.sp} SP</span>
+          ${ico('chevronDown', 'hu-chevron')}
+        </button>
+      </h3>
+      <div class="hu-panel" id="panel-${h.hu}">
+        <div class="hu-panel-inner">
+          <div class="hu-contenido">
+            <p class="hu-historia">“${esc(h.relato)}”</p>
+            <h4>Criterios de aceptación</h4>
+            <ul class="ca-lista">
+              ${h.criterios.map((c) => `
+                <li><span class="ca-id">${c.id}</span><span>${esc(c.texto)}</span></li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>`).join('');
+  filtrarHistorias();
+}
+
+function filtrarHistorias() {
+  let visibles = 0;
+  $$('#lista-historias .hu-card').forEach((card) => {
+    const okPrio = huPrio === 'Todas' || card.dataset.prio === huPrio;
+    const okSprint = huSprint === 'Todos' || card.dataset.sprint === huSprint;
+    const ok = okPrio && okSprint;
+    card.hidden = !ok;
+    if (ok) visibles++;
+  });
+  $('#hu-estado').textContent = `Mostrando ${visibles} de ${HISTORIAS.length} historias`;
+}
+
+/** Product Backlog ordenable */
+let orden = { key: null, dir: 1 };
+const PESO_PRIORIDAD = { Alta: 3, Media: 2, Baja: 1 };
+
+function renderBacklog() {
+  const datos = BACKLOG.slice();
+  if (orden.key) {
+    datos.sort((a, b) => {
+      let va = a[orden.key];
+      let vb = b[orden.key];
+      if (orden.key === 'prioridad') { va = PESO_PRIORIDAD[va]; vb = PESO_PRIORIDAD[vb]; }
+      if (typeof va === 'string') return va.localeCompare(vb, 'es') * orden.dir;
+      return (va - vb) * orden.dir;
+    });
+  }
+
+  $('#backlog-body').innerHTML = datos.map((it) => `
+    <tr>
+      <td class="hu-celda">${it.hu}</td>
+      <td>${esc(it.historia)}</td>
+      <td>${esc(it.epica)}</td>
+      <td><span class="chip badge-${it.prioridad.toLowerCase()}">${it.prioridad}</span></td>
+      <td>Sprint ${it.sprint}</td>
+      <td><span class="chip badge-estado">${it.estado}</span></td>
+      <td class="sp-celda">${it.sp}</td>
+      <td>${esc(it.notas)}</td>
+    </tr>`).join('');
+
+  $$('#backlog th.ordenable').forEach((th) => {
+    const boton = th.querySelector('button');
+    const activa = orden.key === boton.dataset.orden;
+    th.setAttribute('aria-sort', !activa ? 'none' : orden.dir === 1 ? 'ascending' : 'descending');
+  });
+}
+
+/** Estimación: gráfico SVG + justificaciones */
+function renderEstimacion() {
+  const svg = $('#chart-svg');
+  svg.innerHTML = '';
+  $('#chart-tip').hidden = true;
+  const anchoReal = Math.round(svg.getBoundingClientRect().width || 760);
+  const W = Math.max(320, Math.min(760, anchoReal));
+  const H = 340;
+  const padL = W < 520 ? 34 : 46;
+  const padR = W < 520 ? 8 : 18;
+  const padT = 36, padB = 54;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const maxSP = 8;
+  const slot = innerW / ESTIMACION.length;
+  const barW = Math.min(48, slot * 0.58);
+  const total = ESTIMACION.reduce((suma, e) => suma + e.sp, 0);
+  const fsEje = W < 520 ? 10 : 11;
+  const fsValor = W < 520 ? 12 : 13;
+  const fsHu = W < 520 ? 9.5 : 10.5;
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  let partes = `<title id="chart-titulo">Story Points por historia de usuario</title>
+    <desc id="chart-desc">Gráfico de barras con los story points estimados de las nueve historias de usuario de RutaSegura. Total: ${total} SP.</desc>`;
+
+  for (let valor = 0; valor <= maxSP; valor += 2) {
+    const y = padT + innerH - (valor / maxSP) * innerH;
+    partes += `<line class="chart-grid-line" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}"/>`;
+    partes += `<text class="chart-axis-label" x="${padL - 8}" y="${y + 4}" text-anchor="end" style="font-size:${fsEje}px">${valor}</text>`;
+  }
+  partes += `<text class="chart-axis-label" x="${padL - 8}" y="${padT - 14}" text-anchor="start" style="font-size:${fsEje}px">SP</text>`;
+
+  ESTIMACION.forEach((d, i) => {
+    const x = padL + slot * i + (slot - barW) / 2;
+    const altura = (d.sp / maxSP) * innerH;
+    const y = padT + innerH - altura;
+    partes += `
+      <g class="chart-bar" tabindex="0" role="img"
+        aria-label="${d.hu}: ${d.sp} story points. ${esc(d.justificacion)}"
+        data-hu="${d.hu}">
+        <rect x="${x}" y="${y}" width="${barW}" height="${altura}" rx="6" style="--rd:${i * 55}ms"></rect>
+        <text class="chart-valor" x="${x + barW / 2}" y="${y - 8}" text-anchor="middle" style="font-size:${fsValor}px">${d.sp}</text>
+        <text class="chart-hu" x="${x + barW / 2}" y="${padT + innerH + 20}" text-anchor="middle" style="font-size:${fsHu}px">${d.hu}</text>
+      </g>`;
+  });
+
+  svg.innerHTML = partes;
+
+  $('#lista-estimacion').innerHTML = ESTIMACION.map((e) => `
+    <li><strong>${e.hu} · ${e.sp} SP</strong> ${esc(e.justificacion)}</li>`).join('');
+}
+
+/** Conclusiones e historial de versiones */
+function renderCierre() {
+  $('#lista-conclusiones').innerHTML = CONCLUSIONES.map((c, i) => `
+    <article class="card conclusion-card reveal" style="--rd:${i * 70}ms">
+      <h3>${ico(c.icono)} ${esc(c.titulo)}</h3>
+      <p>${esc(c.texto)}</p>
+    </article>`).join('');
+
+  $('#lista-versiones').innerHTML = VERSIONES.map((v) => `
+    <li><span class="version-mini">${v.fecha}</span> ${esc(v.texto)}</li>`).join('');
+}
+
+/** Ejecuta todos los renderizados */
+function renderTodo() {
+  renderFunciones();
+  renderUsuarios();
+  renderRF();
+  renderRNF();
+  renderScrum();
+  renderHistorias();
+  renderBacklog();
+  renderEstimacion();
+  renderCierre();
+}
+/* ==========================================================================
+   INTERACCIÓN
+   ========================================================================== */
+
+/* ---------- Tema claro / oscuro ---------- */
+function aplicarTema(tema) {
+  document.documentElement.setAttribute('data-theme', tema);
+  try { localStorage.setItem('rutasegura-tema', tema); } catch (e) { /* sin storage */ }
+  const boton = $('#btn-tema');
+  boton.setAttribute('aria-pressed', String(tema === 'dark'));
+  boton.setAttribute('aria-label', tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+  const meta = $('#meta-tema');
+  if (meta) meta.setAttribute('content', tema === 'dark' ? '#0b1322' : '#0b2440');
+}
+
+function iniciarTema() {
+  aplicarTema(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  $('#btn-tema').addEventListener('click', () => {
+    const actual = document.documentElement.getAttribute('data-theme');
+    aplicarTema(actual === 'dark' ? 'light' : 'dark');
+  });
+}
+
+/* ---------- Navbar: fondo al hacer scroll, menú móvil y scrollspy ---------- */
+function iniciarNavbar() {
+  const navbar = $('#navbar');
+  const botonMenu = $('#btn-menu');
+  const menu = $('#nav-menu');
+  const enlaces = $$('.nav-link');
+  const secciones = $$('main section[id]');
+  let menuAbierto = false;
+
+  function actualizarFondo() {
+    navbar.classList.toggle('scrolled', window.scrollY > 12 || menuAbierto);
+  }
+
+  function abrirMenu(abrir) {
+    menuAbierto = abrir;
+    menu.classList.toggle('open', abrir);
+    botonMenu.setAttribute('aria-expanded', String(abrir));
+    botonMenu.setAttribute('aria-label', abrir ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+    actualizarFondo();
+  }
+
+  botonMenu.addEventListener('click', () => abrirMenu(!menuAbierto));
+  menu.addEventListener('click', (e) => {
+    if (e.target.closest('a')) abrirMenu(false);
+  });
+  document.addEventListener('click', (e) => {
+    if (menuAbierto && !navbar.contains(e.target)) abrirMenu(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuAbierto) {
+      abrirMenu(false);
+      botonMenu.focus();
+    }
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1360 && menuAbierto) abrirMenu(false);
+  });
+
+  function marcarSeccionActiva() {
+    const y = window.scrollY + 100;
+    let actual = secciones[0];
+    secciones.forEach((seccion) => {
+      if (seccion.offsetTop <= y) actual = seccion;
+    });
+    const alFinal = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    if (alFinal) actual = secciones[secciones.length - 1];
+    enlaces.forEach((a) => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + actual.id);
+    });
+  }
+
+  window.addEventListener('scroll', () => {
+    actualizarFondo();
+    marcarSeccionActiva();
+  }, { passive: true });
+
+  actualizarFondo();
+  marcarSeccionActiva();
+}
+
+/* ---------- Contadores animados ---------- */
+function formatearContador(el, valor) {
+  const prefijo = el.dataset.prefijo || '';
+  const sufijo = el.dataset.sufijo || '';
+  return prefijo + Math.round(valor).toLocaleString('es-CL') + sufijo;
+}
+
+function animarContador(el) {
+  const objetivo = Number(el.dataset.contador) || 0;
+  if (reduceMotion.matches) {
+    el.textContent = formatearContador(el, objetivo);
+    return;
+  }
+  const duracion = 1700;
+  const inicio = performance.now();
+  el.textContent = formatearContador(el, 0);
+
+  function paso(ahora) {
+    const progreso = Math.min((ahora - inicio) / duracion, 1);
+    const suavizado = 1 - Math.pow(1 - progreso, 3);
+    el.textContent = formatearContador(el, objetivo * suavizado);
+    if (progreso < 1) requestAnimationFrame(paso);
+  }
+  requestAnimationFrame(paso);
+}
+
+function iniciarContadores() {
+  const contadores = $$('[data-contador]');
+  if (!('IntersectionObserver' in window) || reduceMotion.matches) {
+    contadores.forEach((el) => { el.textContent = formatearContador(el, Number(el.dataset.contador) || 0); });
+    return;
+  }
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach((entrada) => {
+      if (entrada.isIntersecting) {
+        animarContador(entrada.target);
+        observador.unobserve(entrada.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  contadores.forEach((el) => observador.observe(el));
+}
+
+/* ---------- Aparición al hacer scroll ---------- */
+function iniciarReveal() {
+  const elementos = $$('.reveal');
+  if (!('IntersectionObserver' in window) || reduceMotion.matches) {
+    elementos.forEach((el) => el.classList.add('in-view'));
+    return;
+  }
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach((entrada) => {
+      if (entrada.isIntersecting) {
+        entrada.target.classList.add('in-view');
+        observador.unobserve(entrada.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -36px 0px' });
+  elementos.forEach((el) => observador.observe(el));
+
+  /* Respaldo: revela por proximidad aunque el observer no dispare */
+  function revelarVisibles() {
+    const alto = window.innerHeight;
+    elementos.forEach((el) => {
+      if (el.classList.contains('in-view')) return;
+      const r = el.getBoundingClientRect();
+      if (r.top < alto - 36 && r.bottom > 0) el.classList.add('in-view');
+    });
+  }
+  window.addEventListener('scroll', revelarVisibles, { passive: true });
+  window.addEventListener('resize', revelarVisibles);
+  revelarVisibles();
+}
+
+/* ---------- Pestañas RNF (ARIA + teclado) ---------- */
+function activarTab(tab) {
+  const tabs = $$('.tab-btn', tab.parentElement);
+  tabs.forEach((t) => {
+    const seleccionado = t === tab;
+    t.setAttribute('aria-selected', String(seleccionado));
+    t.tabIndex = seleccionado ? 0 : -1;
+    const panel = document.getElementById(t.getAttribute('aria-controls'));
+    if (panel) panel.hidden = !seleccionado;
+  });
+}
+
+function iniciarTabs() {
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab-btn');
+    if (tab) activarTab(tab);
+  });
+  document.addEventListener('keydown', (e) => {
+    const tab = e.target.closest('.tab-btn');
+    if (!tab) return;
+    const tabs = $$('.tab-btn', tab.parentElement);
+    const indice = tabs.indexOf(tab);
+    let destino = null;
+    if (e.key === 'ArrowRight') destino = tabs[(indice + 1) % tabs.length];
+    else if (e.key === 'ArrowLeft') destino = tabs[(indice - 1 + tabs.length) % tabs.length];
+    else if (e.key === 'Home') destino = tabs[0];
+    else if (e.key === 'End') destino = tabs[tabs.length - 1];
+    if (destino) {
+      e.preventDefault();
+      activarTab(destino);
+      destino.focus();
+    }
+  });
+}
+
+/* ---------- Acordeón de historias de usuario ---------- */
+function iniciarAcordeon() {
+  document.addEventListener('click', (e) => {
+    const boton = e.target.closest('.hu-trigger');
+    if (!boton) return;
+    const tarjeta = boton.closest('.hu-card');
+    const abierta = boton.getAttribute('aria-expanded') === 'true';
+    boton.setAttribute('aria-expanded', String(!abierta));
+    tarjeta.classList.toggle('abierta', !abierta);
+  });
+}
+
+/* ---------- Filtros de requisitos funcionales ---------- */
+function iniciarFiltrosRF() {
+  $('#rf-buscar').addEventListener('input', (e) => {
+    rfBusqueda = e.target.value;
+    renderRF();
+  });
+  $$('.filtro-btn[data-area]').forEach((boton) => {
+    boton.addEventListener('click', () => {
+      rfArea = boton.dataset.area;
+      $$('.filtro-btn[data-area]').forEach((b) => b.setAttribute('aria-pressed', String(b === boton)));
+      renderRF();
+    });
+  });
+}
+
+/* ---------- Filtros de historias de usuario ---------- */
+function iniciarFiltrosHU() {
+  $$('.filtro-btn[data-prio]').forEach((boton) => {
+    boton.addEventListener('click', () => {
+      huPrio = boton.dataset.prio;
+      $$('.filtro-btn[data-prio]').forEach((b) => b.setAttribute('aria-pressed', String(b === boton)));
+      filtrarHistorias();
+    });
+  });
+  $$('.filtro-btn[data-sprint]').forEach((boton) => {
+    boton.addEventListener('click', () => {
+      huSprint = boton.dataset.sprint;
+      $$('.filtro-btn[data-sprint]').forEach((b) => b.setAttribute('aria-pressed', String(b === boton)));
+      filtrarHistorias();
+    });
+  });
+}
+
+/* ---------- Orden de la tabla del backlog ---------- */
+function iniciarOrdenBacklog() {
+  $$('#backlog th.ordenable button').forEach((boton) => {
+    boton.addEventListener('click', () => {
+      const clave = boton.dataset.orden;
+      if (orden.key === clave) orden.dir *= -1;
+      else { orden.key = clave; orden.dir = 1; }
+      renderBacklog();
+    });
+  });
+}
+
+/* ---------- Tooltip del gráfico de estimación ---------- */
+function iniciarTooltipGrafico() {
+  const contenedor = $('#chart-wrap');
+  const tip = $('#chart-tip');
+
+  function mostrar(barra) {
+    const dato = ESTIMACION.find((d) => d.hu === barra.dataset.hu);
+    if (!dato) return;
+    tip.innerHTML = `<strong>${dato.hu} · ${dato.sp} SP</strong><span>${esc(dato.justificacion)}</span>`;
+    tip.hidden = false;
+    const r = barra.getBoundingClientRect();
+    const c = contenedor.getBoundingClientRect();
+    const izquierda = Math.max(90, Math.min(r.left - c.left + r.width / 2, c.width - 90));
+    tip.style.left = izquierda + 'px';
+    tip.style.top = (r.top - c.top) + 'px';
+  }
+  function ocultar() { tip.hidden = true; }
+
+  contenedor.addEventListener('mouseover', (e) => {
+    const barra = e.target.closest('.chart-bar');
+    if (barra) mostrar(barra);
+  });
+  contenedor.addEventListener('mouseout', (e) => {
+    const barra = e.target.closest('.chart-bar');
+    if (barra && !barra.contains(e.relatedTarget)) ocultar();
+  });
+  contenedor.addEventListener('focusin', (e) => {
+    const barra = e.target.closest('.chart-bar');
+    if (barra) mostrar(barra);
+  });
+  contenedor.addEventListener('focusout', (e) => {
+    if (e.target.closest('.chart-bar')) ocultar();
+  });
+  contenedor.addEventListener('click', (e) => {
+    const barra = e.target.closest('.chart-bar');
+    if (barra) mostrar(barra);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ocultar(); });
+  window.addEventListener('scroll', ocultar, { passive: true });
+}
+
+/* ---------- Botón volver arriba ---------- */
+function iniciarVolverArriba() {
+  const boton = $('#volver-arriba');
+  window.addEventListener('scroll', () => {
+    boton.classList.toggle('visible', window.scrollY > 700);
+  }, { passive: true });
+  boton.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  });
+}
+
+/* ---------- Arranque ---------- */
+function iniciar() {
+  renderTodo();
+  iniciarTema();
+  iniciarNavbar();
+  iniciarContadores();
+  iniciarReveal();
+  iniciarTabs();
+  iniciarAcordeon();
+  iniciarFiltrosRF();
+  iniciarFiltrosHU();
+  iniciarOrdenBacklog();
+  iniciarTooltipGrafico();
+  iniciarVolverArriba();
+
+  /* Recalcula el gráfico al cambiar el tamaño de la ventana */
+  let temporizadorGrafico;
+  window.addEventListener('resize', () => {
+    clearTimeout(temporizadorGrafico);
+    temporizadorGrafico = setTimeout(renderEstimacion, 200);
+  });
+}
+
+iniciar();
+</script>
+</body>
+</html>
