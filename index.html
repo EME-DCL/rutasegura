@@ -341,7 +341,7 @@ strong { font-weight: 600; }
 .nav-menu ul {
   display: flex;
   align-items: center;
-  gap: .1rem;
+  gap: 0;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -791,6 +791,45 @@ html[data-theme="dark"] .tema-luna { display: none; }
 .elicitacion-card p { font-size: .89rem; color: var(--muted); margin: 0 0 .7rem; }
 .elicitacion-card .id-pill { font-size: .68rem; padding: .15rem .45rem; }
 
+/* Llamado al prototipo de vistas de usuario */
+.cta-vistas {
+  display: grid;
+  gap: 1.1rem;
+  margin-top: 1.2rem;
+  padding: clamp(1.15rem, 3vw, 1.6rem);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radio);
+  background: linear-gradient(120deg, var(--accent-soft), transparent 62%), var(--surface);
+}
+@media (min-width: 780px) {
+  .cta-vistas { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.6rem; }
+}
+.cta-vistas .cta-icono {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: .65rem;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.cta-vistas .cta-icono svg { width: 22px; height: 22px; }
+.cta-vistas h3 { font-size: clamp(1.05rem, 2.2vw, 1.25rem); margin: 0 0 .35rem; }
+.cta-vistas p { margin: 0; max-width: 64ch; font-size: .92rem; color: var(--muted); }
+.cta-vistas .cta-specs { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .75rem; }
+.cta-vistas .cta-spec {
+  font-family: var(--f-mono);
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: .12rem .45rem;
+}
+.cta-vistas .btn { justify-self: start; white-space: nowrap; }
+
 /* RF */
 .filtros { display: grid; gap: .9rem; margin-bottom: 1.3rem; }
 .filtros-barra {
@@ -1154,6 +1193,25 @@ th[aria-sort="none"] .sort-ind::after { content: "⇅"; }
 .footer .brand { color: #ffffff; margin: 0 0 .8rem; }
 .footer .brand-acento { color: var(--amarillo); }
 .footer-tagline { font-size: .88rem; max-width: 34ch; margin: 0; color: #a9bcd4; }
+.footer-vistas {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-top: .95rem;
+  padding: .4rem .85rem;
+  border: 1px solid rgba(255, 197, 49, .38);
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--amarillo);
+  transition: background .2s var(--ease), border-color .2s var(--ease);
+}
+.footer-vistas:hover {
+  background: rgba(255, 197, 49, .12);
+  border-color: var(--amarillo);
+  text-decoration: none;
+}
+.footer-vistas svg { width: 15px; height: 15px; }
 .footer h3 {
   font-size: .76rem;
   letter-spacing: .1em;
@@ -1252,6 +1310,7 @@ th[aria-sort="none"] .sort-ind::after { content: "⇅"; }
         <li><a class="nav-link" href="#perspectiva">Perspectiva</a></li>
         <li><a class="nav-link" href="#funciones">Funciones</a></li>
         <li><a class="nav-link" href="#usuarios">Usuarios</a></li>
+        <li><a class="nav-link" href="vistas.html">Vistas</a></li>
         <li><a class="nav-link" href="#rf">RF</a></li>
         <li><a class="nav-link" href="#rnf">RNF</a></li>
         <li><a class="nav-link" href="#scrum">Scrum</a></li>
@@ -1299,10 +1358,10 @@ th[aria-sort="none"] .sort-ind::after { content: "⇅"; }
           automáticas en lugar de llamadas y grupos de mensajería.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-amarillo" href="#perspectiva">Explorar el producto
+          <a class="btn btn-amarillo" href="vistas.html">Ver vistas de usuario
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
-          <a class="btn btn-fantasma" href="#scrum">Ver planificación Scrum</a>
+          <a class="btn btn-fantasma" href="#perspectiva">Explorar el producto</a>
         </div>
         <div class="hero-kpis" aria-label="Indicadores principales del proyecto">
           <div class="kpi">
@@ -1571,6 +1630,30 @@ th[aria-sort="none"] .sort-ind::after { content: "⇅"; }
         <div class="subhead"><h3>Técnicas de elicitación</h3></div>
         <div class="grid grid-3" id="lista-elicitacion"><!-- Renderizado por JavaScript --></div>
       </div>
+
+      <div class="cta-vistas reveal">
+        <div>
+          <span class="cta-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8.5l4 2.5-4 2.5z"/></svg>
+          </span>
+          <h3>Prototipo navegable: así se ve RutaSegura para cada rol</h3>
+          <p>
+            Recorre las cuatro vistas con datos simulados: el panel del administrador con bloqueo por
+            capacidad, el marcaje en dos toques del conductor, el mapa y las alertas del apoderado, y
+            la asistencia delegada del asistente de transporte.
+          </p>
+          <div class="cta-specs" aria-label="Requisitos demostrados en el prototipo">
+            <span class="cta-spec">RF-01 · RF-04</span>
+            <span class="cta-spec">RF-05 · RF-06 · RF-07</span>
+            <span class="cta-spec">HU-01 · HU-02 · HU-09</span>
+            <span class="cta-spec">Escritorio + móvil</span>
+          </div>
+        </div>
+        <a class="btn btn-primario" href="vistas.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Abrir el prototipo
+        </a>
+      </div>
     </div>
   </section>
 
@@ -1780,6 +1863,10 @@ th[aria-sort="none"] .sort-ind::after { content: "⇅"; }
         <span>Ruta<span class="brand-acento">Segura</span></span>
       </a>
       <p class="footer-tagline">Plataforma web y móvil de gestión y trazabilidad del transporte escolar.</p>
+      <a class="footer-vistas" href="vistas.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Vistas de usuario · prototipo
+      </a>
     </div>
 
     <div>

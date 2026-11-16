@@ -21,6 +21,20 @@ Aplicación de una sola página (`index.html`) con HTML, CSS y JavaScript puro, 
 
 Incluye modo claro/oscuro, navegación por anclas, animaciones respetuosas de `prefers-reduced-motion` y accesibilidad AA (Lighthouse: 100 en Accesibilidad y Buenas prácticas).
 
+## Vistas de usuario (prototipo)
+
+`vistas.html` es un prototipo navegable con las cuatro vistas del sistema, enlazado desde la landing:
+
+- **Administrador** (escritorio): ocupación de furgones y bloqueo de asignaciones al 100% de capacidad.
+- **Conductor** (móvil): inicio de recorrido y marcaje de abordajes con botones de 48 px, incluido el modo offline con cola SQLite.
+- **Apoderado** (móvil): mapa con ETA, informe de ausencia y alerta push por retraso.
+- **Asistente de transporte** (móvil): lista delegada sincronizada con la vista del conductor.
+
+Cada pantalla indica los RF y HU que demuestra y ofrece un recorrido guiado con datos simulados.
+
 ## Uso
 
 Abre `index.html` en el navegador, o visita la versión publicada en GitHub Pages.
+
+- Landing: <https://eme-dcl.github.io/rutasegura/>
+- Prototipo: <https://eme-dcl.github.io/rutasegura/vistas.html>
